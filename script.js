@@ -145,6 +145,20 @@
   //   window.rgCaptcha = { provider: 'turnstile', turnstileSiteKey: 'SEU_SITE_KEY_AQUI' }
   const RG_CAPTCHA = window.rgCaptcha || { provider: '', turnstileSiteKey: '' };
 
+  // Fallback: se o siteKey vier vazio (cache/arquivo antigo no GitHub Pages),
+  // usamos um valor embutido para não travar o cadastro/login.
+  // (O siteKey é público; o SECRET fica só no Supabase.)
+  const TURNSTILE_SITEKEY_FALLBACK = '0x4AAAAAACU696IdHGV8UAq5';
+  if (RG_CAPTCHA && RG_CAPTCHA.provider === 'turnstile') {
+    const k = (RG_CAPTCHA.turnstileSiteKey || '').trim();
+    if (!k) {
+      RG_CAPTCHA.turnstileSiteKey = TURNSTILE_SITEKEY_FALLBACK;
+      if (window.rgCaptcha) window.rgCaptcha.turnstileSiteKey = TURNSTILE_SITEKEY_FALLBACK;
+      console.warn('[RG] turnstileSiteKey estava vazio; usando fallback embutido. Verifique supabase-config.js publicado.');
+    }
+  }
+
+
   const RG_CAPTCHA_STATE = {
     login: { token: '', widgetId: null },
     signup: { token: '', widgetId: null },
