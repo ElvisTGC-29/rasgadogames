@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Desafios para Stardew Valley e Haunted Chocolatier: metas divertidas e mensuráveis, com checklists e um guia adaptado do desafio 400k/500k." />
+  <meta name="theme-color" content="#8B4513" />
+  <title>Desafios — Stardew Valley & Haunted | Rasgado Games</title>
+
+  <link rel="stylesheet" href="styles.css" />
+<!-- Open Graph -->
+  <meta property="og:title" content="Desafios — Rasgado Games" />
+  <meta property="og:description" content="Desafios para Stardew Valley e Haunted, com checklists e um guia adaptado do desafio 400k/500k." />
+  <meta property="og:type" content="article" />
+
+  <link rel="icon" type="image/png" sizes="32x32" href="assets/logos/branding/favicon-32.png" />
+  <link rel="icon" type="image/png" sizes="16x16" href="assets/logos/branding/favicon-16.png" />
+  <link rel="apple-touch-icon" sizes="180x180" href="assets/logos/branding/apple-touch-icon.png" />
+  <link rel="shortcut icon" href="assets/logos/branding/favicon.ico" />
+</head>
+
+<body data-theme="stardew">
+  <a class="skip-link" href="#conteudo">Pular para o conteúdo</a>
+
+  <header class="header" role="banner">
+    <div class="container header__inner">
+      <a class="brand" href="index.html#home" aria-label="Ir para Home">
+        <img src="assets/logos/branding/rg-mark.png" class="brand__logo" alt="Rasgado Games" />
+        <div class="brand__text">
+          <span class="brand__title">Rasgado Games</span>
+          <span class="brand__tagline">Seu guia completo para Stardew Valley &amp; Haunted Chocolatier</span>
+        </div>
+      </a>
+
+      <button class="nav-toggle" type="button" aria-controls="navMain" aria-expanded="false">
+        <span class="nav-toggle__bars" aria-hidden="true"></span>
+        <span class="sr-only">Abrir menu</span>
+      </button>
+
+      <nav id="navMain" class="nav" aria-label="Navegação principal">
+        <a href="index.html#home" class="nav__link">Home</a>
+
+        <div class="nav__dropdown" data-dropdown>
+          <button class="nav__link nav__dropdownBtn" type="button" aria-haspopup="true" aria-expanded="false">
+            <img src="assets/icons/games/stardew.gif" class="game-icon game-icon--nav" alt="Stardew Valley"> Stardew Valley <span class="nav__chev" aria-hidden="true">▾</span>
+          </button>
+          <div class="nav__menu" role="menu" aria-label="Submenu Stardew Valley">
+            <a role="menuitem" href="comecando.html" class="nav__sublink">Começando (iniciante)</a>
+            <a role="menuitem" href="index.html#dicas" class="nav__sublink">Dicas e Truques</a>
+            <a role="menuitem" href="desafios.html" class="nav__sublink">Desafios</a>
+            <a role="menuitem" href="index.html#detonado" class="nav__sublink">Detonado</a>
+            <a role="menuitem" href="atualizacoes/stardew.html" class="nav__sublink">Atualizações</a>
+            <a role="menuitem" href="forum/stardew.html" class="nav__sublink">Fórum</a>
+            <a role="menuitem" href="listas.html" class="nav__sublink">Listas</a>
+            
+          </div>
+        </div>
+
+        <div class="nav__dropdown" data-dropdown>
+          <button class="nav__link nav__dropdownBtn" type="button" aria-haspopup="true" aria-expanded="false">
+            <img src="assets/icons/games/haunted.gif" class="game-icon game-icon--nav" alt="Haunted Chocolatier"> Haunted Chocolatier <span class="nav__chev" aria-hidden="true">▾</span>
+          </button>
+          <div class="nav__menu" role="menu" aria-label="Submenu Haunted Chocolatier">
+            <a role="menuitem" href="index.html#haunted-comecando" class="nav__sublink">Começando (pré-lançamento)</a>
+            <a role="menuitem" href="index.html#dicas" class="nav__sublink">Dicas &amp; ideias</a>
+            <a role="menuitem" href="atualizacoes/haunted.html" class="nav__sublink">Atualizações</a>
+          <a role="menuitem" href="forum/haunted.html" class="nav__sublink">Fórum</a>
+          </div>
+        </div>
+
+        <a href="atualizacoes.html" class="nav__link">Atualizações</a>
+      </nav>
+
+      <div class="header__actions" data-auth-actions>
+        <a class="btn btn--ghost" href="conta.html#login">Entrar</a>
+        <a class="btn btn--primary" href="conta.html#cadastro">Criar conta</a>
+      </div>
+    </div>
+  </header>
+
+  <div class="container footer__bottom">
+      <p>&copy; 2026 Rasgado Games. <a href="privacidade.html">Privacidade</a> · <a href="termos.html">Termos</a></p>
+    </div>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
+  <script src="supabase-config.js" defer></script>
+  <script src="script.js" defer></script>
+</body>
+</html>

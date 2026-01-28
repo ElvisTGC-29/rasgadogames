@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Rasgado Games: guias, desafios, checklists e detonados de Stardew Valley. Conteúdo limpo, rápido e fácil de navegar." />
+  <meta name="theme-color" content="#8B4513" />
+  <title>Rasgado Games — Stardew Valley & Haunted Chocolatier</title>
+
+  <link rel="stylesheet" href="styles.css" />
+<!-- Open Graph -->
+  <meta property="og:title" content="Rasgado Games" />
+  <meta property="og:description" content="Guias, desafios, checklists e detonados de Stardew Valley, com visual limpo e elegante." />
+  <meta property="og:type" content="website" />
+
+  <meta name="robots" content="noindex" />
+
+  <link rel="icon" type="image/png" sizes="32x32" href="assets/logos/branding/favicon-32.png" />
+  <link rel="icon" type="image/png" sizes="16x16" href="assets/logos/branding/favicon-16.png" />
+  <link rel="apple-touch-icon" sizes="180x180" href="assets/logos/branding/apple-touch-icon.png" />
+  <link rel="shortcut icon" href="assets/logos/branding/favicon.ico" />
+</head>
+<body>
+<header class="header" role="banner">
+    <div class="container header__inner">
+      <a class="brand" href="index.html#home" aria-label="Ir para Home">
+        <img src="assets/logos/branding/rg-mark.png" class="brand__logo" alt="Rasgado Games" />
+        <div class="brand__text">
+          <span class="brand__title">Rasgado Games</span>
+          <span class="brand__tagline">Seu guia completo para Stardew Valley &amp; Haunted Chocolatier</span>
+        </div>
+      </a>
+
+      <button class="nav-toggle" type="button" aria-controls="navMain" aria-expanded="false">
+        <span class="nav-toggle__bars" aria-hidden="true"></span>
+        <span class="sr-only">Abrir menu</span>
+      </button>
+
+      <nav id="navMain" class="nav" aria-label="Navegação principal">
+        <a href="index.html#home" class="nav__link">Home</a>
+
+        <div class="nav__dropdown" data-dropdown>
+          <button class="nav__link nav__dropdownBtn" type="button" aria-haspopup="true" aria-expanded="false">
+            <img src="assets/icons/games/stardew.gif" class="game-icon game-icon--nav" alt="Stardew Valley"> Stardew Valley <span class="nav__chev" aria-hidden="true">▾</span>
+          </button>
+          <div class="nav__menu" role="menu" aria-label="Submenu Stardew Valley">
+            <a role="menuitem" href="comecando.html" class="nav__sublink">Começando (iniciante)</a>
+            <a role="menuitem" href="index.html#dicas" class="nav__sublink">Dicas e Truques</a>
+            <a role="menuitem" href="desafios.html" class="nav__sublink">Desafios</a>
+            <a role="menuitem" href="index.html#detonado" class="nav__sublink">Detonado</a>
+            <a role="menuitem" href="atualizacoes/stardew.html" class="nav__sublink">Atualizações</a>
+            <a role="menuitem" href="forum/stardew.html" class="nav__sublink">Fórum</a>
+            <a role="menuitem" href="listas.html" class="nav__sublink">Listas</a>
+            
+          </div>
+        </div>
+
+        <div class="nav__dropdown" data-dropdown>
+          <button class="nav__link nav__dropdownBtn" type="button" aria-haspopup="true" aria-expanded="false">
+            <img src="assets/icons/games/haunted.gif" class="game-icon game-icon--nav" alt="Haunted Chocolatier"> Haunted Chocolatier <span class="nav__chev" aria-hidden="true">▾</span>
+          </button>
+          <div class="nav__menu" role="menu" aria-label="Submenu Haunted Chocolatier">
+            <a role="menuitem" href="index.html#haunted-comecando" class="nav__sublink">Começando (pré-lançamento)</a>
+            <a role="menuitem" href="index.html#dicas" class="nav__sublink">Dicas &amp; ideias</a>
+            <a role="menuitem" href="atualizacoes/haunted.html" class="nav__sublink">Atualizações</a>
+          <a role="menuitem" href="forum/haunted.html" class="nav__sublink">Fórum</a>
+          </div>
+        </div>
+
+        <a href="atualizacoes.html" class="nav__link">Atualizações</a>
+      </nav>
+
+      <div class="header__actions" data-auth-actions>
+        <a class="btn btn--ghost" href="conta.html#login">Entrar</a>
+        <a class="btn btn--primary" href="conta.html#cadastro">Criar conta</a>
+      </div>
+    </div>
+  </header>
+
+<main id="conteudo">
+  <section class="hero">
+    <div class="container hero__inner authpage">
+      <h2 class="hero__title">Conta Rasgado Games</h2>
+      <p class="hero__subtitle">Crie sua conta para acessar o fórum e recursos salvos. Tudo fica organizado e sem bagunça.</p>
+      <div class="notice">
+        <strong>Importante:</strong> por enquanto as contas são armazenadas no <em>seu navegador</em> (modo site estático). Quando ativarmos o backend real, você poderá migrar e sincronizar entre dispositivos.
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container authpage">
+      <div class="tabs" role="tablist" aria-label="Entrar ou criar conta">
+        <a class="btn btn--primary" id="tabLogin" href="conta.html#login" role="tab" aria-selected="true">Entrar</a>
+        <a class="btn btn--ghost" id="tabSignup" href="conta.html#cadastro" role="tab" aria-selected="false">Criar conta</a>
+        <a class="btn btn--ghost" href="index.html#home">Voltar</a>
+      </div>
+
+      <div class="authgrid">
+        <article class="card" id="panelLogin" role="tabpanel" aria-labelledby="tabLogin">
+          <h3 class="card__title">Entrar</h3>
+          <p class="card__text">Acesse sua conta para liberar o fórum e recursos privados.</p>
+
+          <form id="loginForm" class="form">
+            <label class="field">
+              <span class="field__label">Email</span>
+              <input class="field__input" type="email" name="email" autocomplete="email" required />
+            </label>
+
+            <label class="field">
+              <span class="field__label">Senha</span>
+              <input class="field__input" type="password" name="password" autocomplete="current-password" required />
+            </label>
+
+            <button class="btn btn--primary btn--block" type="submit">Entrar</button>
+
+            <p class="form__footer">
+              Ainda não tem conta?
+              <a class="linklike" href="conta.html#cadastro">Cadastre-se</a>
+            </p>
+            <p class="muted" id="loginMsg" aria-live="polite"></p>
+          </form>
+        </article>
+
+        <article class="card" id="panelSignup" hidden role="tabpanel" aria-labelledby="tabSignup">
+          <h3 class="card__title">Criar conta</h3>
+          <p class="card__text">Uma conta por pessoa. Nome limpo, sem spam, e acesso ao fórum.</p>
+
+          <form id="signupForm" class="form">
+            <label class="field">
+              <span class="field__label">Nome de usuário</span>
+              <input class="field__input" type="text" name="username" autocomplete="nickname" minlength="3" maxlength="20" required />
+              <span class="field__hint">3–20 caracteres. Sem espaços (use _ se quiser).</span>
+            </label>
+
+            <label class="field">
+              <span class="field__label">Email</span>
+              <input class="field__input" type="email" name="email" autocomplete="email" required />
+            </label>
+
+            <label class="field">
+              <span class="field__label">Senha</span>
+              <input class="field__input" type="password" name="password" autocomplete="new-password" minlength="6" required />
+              <span class="field__hint">Mínimo 6 caracteres.</span>
+            </label>
+
+            <label class="field">
+              <span class="field__label">Confirmar senha</span>
+              <input class="field__input" type="password" name="password2" autocomplete="new-password" minlength="6" required />
+            </label>
+
+            <button class="btn btn--primary btn--block" type="submit">Criar conta</button>
+
+            <p class="form__footer">
+              Já tem conta?
+              <a class="linklike" href="conta.html#login">Entrar</a>
+            </p>
+            <p class="muted" id="signupMsg" aria-live="polite"></p>
+          </form>
+        </article>
+
+        <aside class="card">
+          <h3 class="card__title">O que você ganha ao logar</h3>
+          <ul class="list">
+            <li>Acesso ao <strong>Fórum</strong> de Stardew e Haunted.</li>
+            <li>Recursos de <strong>listas e progresso</strong> salvos.</li>
+            <li>Áreas privadas só para quem tem conta — organizado e limpo.</li>
+          </ul>
+
+          <hr class="divider" />
+
+          <h4 style="margin:0 0 10px">Atalhos</h4>
+          <div class="hero__actions" style="justify-content:flex-start">
+            <a class="btn btn--ghost" href="forum/stardew.html">Fórum Stardew</a>
+            <a class="btn btn--ghost" href="forum/haunted.html">Fórum Haunted</a>
+            <a class="btn btn--ghost" href="listas.html">Listas</a>
+          </div>
+
+          <p class="muted" style="margin-top:12px">Você volta automaticamente para a página que tentou abrir depois de entrar.</p>
+        </aside>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="footer" role="contentinfo">
+    <div class="container footer__inner">
+      <div class="footer__col">
+        <h5>Sobre</h5>
+        <p>Rasgado Games é um guia limpo e organizado para Stardew Valley e Haunted Chocolatier. Sem anúncios, sem distrações.</p>
+        <p class="meta">Não afiliado à ConcernedApe. Stardew Valley e Haunted Chocolatier são marcas de seus respectivos donos.</p>
+      </div>
+
+      <div class="footer__col">
+        <h5>Links úteis</h5>
+        <ul class="footer__links">
+          <li><a href="https://store.steampowered.com/news/app/413150/" target="_blank" rel="noopener">Notas oficiais (Steam)</a></li>
+          <li><a href="https://www.stardewvalley.net/" target="_blank" rel="noopener">Site oficial Stardew</a></li>
+          <li><a href="https://www.hauntedchocolatier.net/" target="_blank" rel="noopener">Site oficial Haunted</a></li>
+        </ul>
+      </div>
+
+      <div class="footer__col">
+        <h5>Comunidade</h5>
+        <div class="social">
+          <a class="social__link" href="https://discord.gg/tGG8avC6Nb" target="_blank" rel="noopener" aria-label="Discord Rasgado Games">Discord</a>
+          <a class="social__link" href="https://www.youtube.com/@RasgadoGames" target="_blank" rel="noopener" aria-label="YouTube Rasgado Games">YouTube</a>
+          <a class="social__link" href="https://www.instagram.com/rasgadogames/" target="_blank" rel="noopener" aria-label="Instagram @rasgadogames">Instagram</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="container footer__bottom">
+      <p>&copy; 2026 Rasgado Games. <a href="privacidade.html">Privacidade</a> · <a href="termos.html">Termos</a></p>
+    </div>
+  </footer>
+
+  <script src="script.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
+  <script src="supabase-config.js" defer></script>
+  <script src="script.js" defer></script>
+</body>
+</html>

@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Rasgado Games: guias, desafios, checklists e detonados de Stardew Valley. Conteúdo limpo, rápido e fácil de navegar." />
+  <meta name="theme-color" content="#8B4513" />
+  <title>Rasgado Games — Stardew Valley & Haunted Chocolatier</title>
+
+  <link rel="stylesheet" href="styles.css" />
+<!-- Open Graph -->
+  <meta property="og:title" content="Rasgado Games" />
+  <meta property="og:description" content="Guias, desafios, checklists e detonados de Stardew Valley, com visual limpo e elegante." />
+  <meta property="og:type" content="website" />
+
+  <link rel="icon" type="image/png" sizes="32x32" href="assets/logos/branding/favicon-32.png" />
+  <link rel="icon" type="image/png" sizes="16x16" href="assets/logos/branding/favicon-16.png" />
+  <link rel="apple-touch-icon" sizes="180x180" href="assets/logos/branding/apple-touch-icon.png" />
+  <link rel="shortcut icon" href="assets/logos/branding/favicon.ico" />
+</head>
+
+<body>
+  <a class="skip-link" href="#conteudo">Pular para o conteúdo</a>
+
+  <header class="header" role="banner">
+    <div class="container header__inner">
+      <a class="brand" href="index.html#home" aria-label="Ir para Home">
+        <img src="assets/logos/branding/rg-mark.png" class="brand__logo" alt="Rasgado Games" />
+        <div class="brand__text">
+          <span class="brand__title">Rasgado Games</span>
+          <span class="brand__tagline">Seu guia completo para Stardew Valley &amp; Haunted Chocolatier</span>
+        </div>
+      </a>
+
+      <button class="nav-toggle" type="button" aria-controls="navMain" aria-expanded="false">
+        <span class="nav-toggle__bars" aria-hidden="true"></span>
+        <span class="sr-only">Abrir menu</span>
+      </button>
+
+      <nav id="navMain" class="nav" aria-label="Navegação principal">
+        <a href="index.html#home" class="nav__link">Home</a>
+
+        <div class="nav__dropdown" data-dropdown>
+          <button class="nav__link nav__dropdownBtn" type="button" aria-haspopup="true" aria-expanded="false">
+            <img src="assets/icons/games/stardew.gif" class="game-icon game-icon--nav" alt="Stardew Valley"> Stardew Valley <span class="nav__chev" aria-hidden="true">▾</span>
+          </button>
+          <div class="nav__menu" role="menu" aria-label="Submenu Stardew Valley">
+            <a role="menuitem" href="comecando.html" class="nav__sublink">Começando (iniciante)</a>
+            <a role="menuitem" href="index.html#dicas" class="nav__sublink">Dicas e Truques</a>
+            <a role="menuitem" href="desafios.html" class="nav__sublink">Desafios</a>
+            <a role="menuitem" href="index.html#detonado" class="nav__sublink">Detonado</a>
+            <a role="menuitem" href="atualizacoes/stardew.html" class="nav__sublink">Atualizações</a>
+            <a role="menuitem" href="forum/stardew.html" class="nav__sublink">Fórum</a>
+            <a role="menuitem" href="listas.html" class="nav__sublink">Listas</a>
+            
+          </div>
+        </div>
+
+        <div class="nav__dropdown" data-dropdown>
+          <button class="nav__link nav__dropdownBtn" type="button" aria-haspopup="true" aria-expanded="false">
+            <img src="assets/icons/games/haunted.gif" class="game-icon game-icon--nav" alt="Haunted Chocolatier"> Haunted Chocolatier <span class="nav__chev" aria-hidden="true">▾</span>
+          </button>
+          <div class="nav__menu" role="menu" aria-label="Submenu Haunted Chocolatier">
+            <a role="menuitem" href="index.html#haunted-comecando" class="nav__sublink">Começando (pré-lançamento)</a>
+            <a role="menuitem" href="index.html#dicas" class="nav__sublink">Dicas &amp; ideias</a>
+            <a role="menuitem" href="atualizacoes/haunted.html" class="nav__sublink">Atualizações</a>
+          <a role="menuitem" href="forum/haunted.html" class="nav__sublink">Fórum</a>
+          </div>
+        </div>
+
+        <a href="atualizacoes.html" class="nav__link">Atualizações</a>
+      </nav>
+
+      <div class="header__actions" data-auth-actions>
+        <a class="btn btn--ghost" href="conta.html#login">Entrar</a>
+        <a class="btn btn--primary" href="conta.html#cadastro">Criar conta</a>
+      </div>
+    </div>
+  </header>
+
+  <!-- COMEÇANDO (HAUNTED) -->
+    <section id="haunted-comecando" class="section">
+      <div class="container">
+        <header class="section__header">
+          <h3 class="section__title">🍫 Começando no Haunted Chocolatier</h3>
+          <p class="section__subtitle">Modelo “pré-lançamento”: o que é oficial, o que é teoria e como montar conteúdo sem inventar patch.</p>
+        </header>
+
+        <div class="game-block is-hidden" data-game-section="haunted">
+          <div class="notice">
+            <strong>Sem data oficial de lançamento:</strong> esta área é feita para você acompanhar novidades com clareza e organizar o conteúdo do canal/blog.
+          </div>
+
+          <div class="grid" style="margin-top:16px">
+            <article class="card">
+              <h4 class="card__title">O que é oficial (sempre)</h4>
+              <p class="card__text">Regra do ouro: só trate como “verdade” o que estiver em fontes oficiais (site do jogo, devlog e anúncios do ConcernedApe).</p>
+              <ul class="list">
+                <li>Links oficiais no rodapé</li>
+                <li>Sem datas chutadas</li>
+                <li>Sem “patch notes” inventadas</li>
+              </ul>
+              <p class="meta">Objetivo: credibilidade.</p>
+            </article>
+
+            <article class="card">
+              <h4 class="card__title">O que é teoria (marcar)</h4>
+              <p class="card__text">Quando você especular, marque como teoria/hipótese. Isso vira um conteúdo legal sem enganar o público.</p>
+              <ul class="list">
+                <li>Use etiquetas tipo “Teoria”</li>
+                <li>Explique por que você acha isso</li>
+                <li>Mostre o que falta para confirmar</li>
+              </ul>
+              <p class="meta">Objetivo: diversão sem desinformação.</p>
+            </article>
+
+            <article class="card">
+              <h4 class="card__title">Conteúdo para preparar</h4>
+              <p class="card__text">Enquanto não lança, você pode criar páginas base e comparações úteis com Stardew.</p>
+              <ul class="list">
+                <li>“Tudo que sabemos (atualizado)”</li>
+                <li>Comparações de sistemas (quando aplicável)</li>
+                <li>Checklist de novidades por devlog</li>
+              </ul>
+              <p class="meta">Objetivo: deixar o blog pronto pra decolar no lançamento.</p>
+            </article>
+          </div>
+
+          <section class="panel" style="margin-top:16px">
+            <header class="panel__head">
+              <h4>✅ Checklist (pré-lançamento)</h4>
+            </header>
+            <div class="checklist">
+              <label class="check"><input type="checkbox" /> Salvar links oficiais do jogo</label>
+              <label class="check"><input type="checkbox" /> Criar página “O que sabemos (oficial)”</label>
+              <label class="check"><input type="checkbox" /> Criar página “Teorias (marcadas)”</label>
+              <label class="check"><input type="checkbox" /> Definir padrão de atualização (ex.: 1 post por anúncio)</label>
+            </div>
+            <p class="meta">Quando o jogo lançar, essa seção vira “Começando (iniciante)” de verdade.</p>
+          </section>
+        </div>
+
+        <div class="game-block" data-game-section="stardew">
+          <div class="notice">
+            <strong>Esta seção é do Haunted.</strong> Selecione “Haunted Chocolatier” no seletor de jogo para ver o conteúdo.
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- DICAS -->
+    <section id="dicas" class="section">
+      <div class="container">
+        <header class="section__header">
+          <h3 class="section__title">💡 Dicas e Truques</h3>
+          <p class="section__subtitle">Conteúdo curto, direto e fácil de aplicar.</p>
+        </header>
+
+        <div class="game-block" data-game-section="stardew">
+          <div class="grid">
+            <article class="card">
+              <h4 class="card__title">Ganhando ouro no início</h4>
+              <p class="card__text">Foque em cultivos simples, pesca e objetivos do Centro Comunitário para acelerar sua progressão.</p>
+              <ul class="list">
+                <li>Planeje a estação com antecedência</li>
+                <li>Venda o excesso e guarde o essencial</li>
+                <li>Use o clima/energia a seu favor</li>
+              </ul>
+              <p class="meta">Atualizado: 2026-01-26</p>
+            </article>
+
+            <article class="card">
+              <h4 class="card__title">Romance e casamento</h4>
+              <p class="card__text">Estratégia simples: rotina + presentes + eventos.</p>
+              <ul class="list">
+                <li>Converse diariamente</li>
+                <li>Presentes 2x por semana</li>
+                <li>Eventos da cidade ajudam muito</li>
+              </ul>
+              <p class="meta">Atualizado: 2026-01-25</p>
+            </article>
+
+            <article class="card">
+              <h4 class="card__title">Mina sem sofrimento</h4>
+              <p class="card__text">Leve cura, tenha um objetivo por ida e use elevador para “economizar” tempo.</p>
+              <ul class="list">
+                <li>Comida barata (saladas, trutas etc.)</li>
+                <li>Evite ir sem ferramenta melhorada</li>
+                <li>Se ficou tarde: vaza</li>
+              </ul>
+              <p class="meta">Atualizado: 2026-01-20</p>
+            </article>
+
+            <article class="card">
+              <h4 class="card__title">Decoração com propósito</h4>
+              <p class="card__text">Uma fazenda bonita também pode ser eficiente: caminhos, zonas e fluxo.</p>
+              <ul class="list">
+                <li>Crie “áreas” (plantio, animais, máquinas)</li>
+                <li>Use caminhos para orientar o olhar</li>
+                <li>Flores sazonais dão vida</li>
+              </ul>
+              <p class="meta">Atualizado: 2026-01-18</p>
+            </article>
+          </div>
+        </div>
+
+        <div class="game-block is-hidden" data-game-section="haunted">
+          <div class="grid">
+            <article class="card">
+              <h4 class="card__title">Status do jogo</h4>
+              <p class="card__text">Haunted Chocolatier ainda está em desenvolvimento (sem data oficial de lançamento).</p>
+              <p class="meta">Fonte: site oficial</p>
+            </article>
+
+            <article class="card">
+              <h4 class="card__title">Ideias de conteúdo</h4>
+              <p class="card__text">Enquanto não lança, você pode preparar guias de base: sistemas, lore e comparações com Stardew.</p>
+              <ul class="list">
+                <li>O que já foi revelado</li>
+                <li>O que é especulação (marcar claramente)</li>
+                <li>Expectativas realistas</li>
+              </ul>
+              <p class="meta">Atualizado: 2026-01-26</p>
+            </article>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- DESAFIOS -->
+    <section id="desafios" class="section section--alt">
+      <div class="container">
+        <header class="section__header">
+          <h3 class="section__title">🏆 Desafios</h3>
+          <p class="section__subtitle">Objetivos “de streamer”: divertidos e mensuráveis.</p>
+          <div class="section__actions" style="margin-top:14px; display:flex; justify-content:center; gap:10px; flex-wrap:wrap;">
+            <a class="btn btn--primary" href="desafios.html">Abrir página de desafios</a>
+            <a class="btn btn--ghost" href="comecando.html">Guia de iniciante</a>
+          </div>
+        </header>
+
+        <div class="game-block" data-game-section="stardew">
+          <div class="stack">
+            <article class="item">
+              <div class="item__head">
+                <h4>🌾 Fazenda organizada (Ano 1)</h4>
+                <span class="pill pill--hard">Difícil</span>
+              </div>
+              <p>Chegue ao fim do Ano 1 com fazenda bem planejada: plantio, animais, máquinas e rotas.</p>
+            </article>
+
+            <article class="item">
+              <div class="item__head">
+                <h4>💚 Amizades em dia</h4>
+                <span class="pill pill--extreme">Muito difícil</span>
+              </div>
+              <p>Maximize amizades sem virar refém do calendário: use rotina por bairros e presentes fáceis.</p>
+            </article>
+
+            <article class="item">
+              <div class="item__head">
+                <h4>⚔️ Minerador consistente</h4>
+                <span class="pill">Médio</span>
+              </div>
+              <p>Progresso sólido na mina sem “rush”: metas por 10 andares + upgrade planejado.</p>
+            </article>
+
+            <article class="item">
+              <div class="item__head">
+                <h4>🎣 Pescador dedicado</h4>
+                <span class="pill">Médio</span>
+              </div>
+              <p>Complete a coleção de peixes da região com um checklist por estação/clima.</p>
+            </article>
+          </div>
+        </div>
+
+        <div class="game-block is-hidden" data-game-section="haunted">
+          <div class="stack">
+            <article class="item">
+              <div class="item__head">
+                <h4>🍫 Conteúdo “pré-lançamento”</h4>
+                <span class="pill">Médio</span>
+              </div>
+              <p>Organize guias comparativos e páginas “o que sabemos” (marcando o que é oficial vs. teoria).</p>
+            </article>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- DETONADO -->
+    <section id="detonado" class="section">
+      <div class="container">
+        <header class="section__header">
+          <h3 class="section__title">📖 Detonado</h3>
+          <p class="section__subtitle">Accordion rápido para consulta, sem poluição visual.</p>
+        </header>
+
+        <div class="game-block" data-game-section="stardew">
+          <div class="accordion" data-accordion>
+            <div class="accordion__item">
+              <button class="accordion__btn" type="button" aria-expanded="false" aria-controls="acc1">
+                Guia de início — primeiros passos
+                <span class="accordion__icon" aria-hidden="true">+</span>
+              </button>
+              <div class="accordion__panel" id="acc1" hidden>
+                <div class="prose">
+                  <h4>Dia 1</h4>
+                  <ol>
+                    <li>Explore e pegue recursos fáceis</li>
+                    <li>Plante pouco (sem drenar energia)</li>
+                    <li>Fale com a galera e se localize</li>
+                  </ol>
+                  <h4>Primeira semana</h4>
+                  <ul>
+                    <li>Organize sua fazenda por zonas</li>
+                    <li>Vá na mina com objetivo (não “passear”)</li>
+                    <li>Pesca = dinheiro rápido</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+
+            <div class="accordion__item">
+              <button class="accordion__btn" type="button" aria-expanded="false" aria-controls="acc2">
+                Mina — como progredir sem morrer
+                <span class="accordion__icon" aria-hidden="true">+</span>
+              </button>
+              <div class="accordion__panel" id="acc2" hidden>
+                <div class="prose">
+                  <ul>
+                    <li>Leve cura sempre</li>
+                    <li>Se ficou tarde: finalize a ida e volte</li>
+                    <li>Upgrade de ferramenta muda o jogo</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+
+            <div class="accordion__item">
+              <button class="accordion__btn" type="button" aria-expanded="false" aria-controls="acc3">
+                Romance — os 12 candidatos
+                <span class="accordion__icon" aria-hidden="true">+</span>
+              </button>
+              <div class="accordion__panel" id="acc3" hidden>
+                <div class="prose">
+                  <p><strong>Femininos:</strong> Abigail, Emily, Haley, Leah, Maru, Penny.</p>
+                  <p><strong>Masculinos:</strong> Alex, Elliott, Harvey, Sam, Sebastian, Shane.</p>
+                  <p class="muted">Sugestão: cada candidato merece uma página com presentes fáceis e rota de encontros.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="game-block is-hidden" data-game-section="haunted">
+          <div class="notice">
+            <strong>Haunted Chocolatier:</strong> conteúdo será preenchido conforme anúncios oficiais.
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ATUALIZAÇÕES -->
+    <section id="atualizacoes" class="section section--alt">
+  <div class="container">
+    <div class="section__head">
+      <h2 class="section__title">Atualizações</h2>
+      <p class="section__subtitle">Linha do tempo das versões (resumo em português) + links para as notas oficiais.</p>
+    </div>
+
+    <div class="grid">
+      <article class="card">
+        <h3 class="card__title">Stardew Valley — versões</h3>
+        <p class="card__text">Do lançamento (1.0) até o update mais recente (1.6), com visão de “o que mudou” em cada fase.</p>
+        <a class="btn btn--ghost" href="atualizacoes/stardew.html">Ver linha do tempo</a>
+        <p class="meta">Baseado em fontes públicas; texto original.</p>
+      </article>
+
+      <article class="card">
+        <h3 class="card__title">Haunted Chocolatier — dev blog</h3>
+        <p class="card__text">Todos os posts oficiais do dev blog, organizados em uma timeline bem limpa.</p>
+        <a class="btn btn--ghost" href="atualizacoes/haunted.html">Ver atualizações</a>
+        <p class="meta">Sem spoilers pesados.</p>
+      </article>
+
+      <article class="card">
+        <h3 class="card__title">Central de atualizações</h3>
+        <p class="card__text">Uma visão geral com os dois jogos e links rápidos para notas e fontes oficiais.</p>
+        <a class="btn btn--primary" href="atualizacoes.html">Abrir central</a>
+        <p class="meta">Perfeito para acompanhar novidades.</p>
+      </article>
+    </div>
+  </div>
+</section>
+
+    <!-- LISTAS -->
+    <section id="listas" class="section">
+      <div class="container">
+        <header class="section__header">
+          <h3 class="section__title">✅ Minhas listas</h3>
+          <p class="section__subtitle">Marque itens e o progresso fica salvo no seu navegador.</p>
+        </header>
+
+        <div class="game-block" data-game-section="stardew">
+          <div class="lists">
+            <section class="panel" data-checklist="peixes">
+              <header class="panel__head">
+                <h4>🐟 Peixes</h4>
+                <div class="progress" aria-label="Progresso de peixes">
+                  <div class="progress__bar"><div class="progress__fill" data-progress-fill></div></div>
+                  <span class="progress__text" data-progress-text>0/0</span>
+                </div>
+              </header>
+
+              <div class="checklist">
+                <label class="check"><input type="checkbox" data-check /> Anchova</label>
+                <label class="check"><input type="checkbox" data-check /> Robalo</label>
+                <label class="check"><input type="checkbox" data-check /> Carpa</label>
+                <label class="check"><input type="checkbox" data-check /> Harenque</label>
+                <label class="check"><input type="checkbox" data-check /> Lúcio</label>
+                <label class="check"><input type="checkbox" data-check /> Pargo</label>
+                <label class="check"><input type="checkbox" data-check /> Salmão</label>
+                <label class="check"><input type="checkbox" data-check /> Sardinha</label>
+                <label class="check"><input type="checkbox" data-check /> Esturjão</label>
+                <label class="check"><input type="checkbox" data-check /> Atum</label>
+                <label class="check"><input type="checkbox" data-check /> Truta</label>
+              </div>
+            </section>
+
+            <section class="panel" data-checklist="sementes">
+              <header class="panel__head">
+                <h4>🌾 Sementes</h4>
+                <div class="progress" aria-label="Progresso de sementes">
+                  <div class="progress__bar"><div class="progress__fill" data-progress-fill></div></div>
+                  <span class="progress__text" data-progress-text>0/0</span>
+                </div>
+              </header>
+
+              <div class="checklist">
+                <label class="check"><input type="checkbox" data-check /> Nabo (Primavera)</label>
+                <label class="check"><input type="checkbox" data-check /> Morango (Primavera)</label>
+                <label class="check"><input type="checkbox" data-check /> Melancia (Verão)</label>
+                <label class="check"><input type="checkbox" data-check /> Pimenta (Verão)</label>
+                <label class="check"><input type="checkbox" data-check /> Milho (Verão/Outono)</label>
+                <label class="check"><input type="checkbox" data-check /> Tomate (Verão)</label>
+                <label class="check"><input type="checkbox" data-check /> Abóbora (Outono)</label>
+                <label class="check"><input type="checkbox" data-check /> Trigo (Verão/Outono)</label>
+              </div>
+            </section>
+
+            <section class="panel" data-checklist="conquistas">
+              <header class="panel__head">
+                <h4>🏆 Conquistas</h4>
+                <div class="progress" aria-label="Progresso de conquistas">
+                  <div class="progress__bar"><div class="progress__fill" data-progress-fill></div></div>
+                  <span class="progress__text" data-progress-text>0/0</span>
+                </div>
+              </header>
+
+              <div class="checklist">
+                <label class="check"><input type="checkbox" data-check /> Conhecer todos os NPCs</label>
+                <label class="check"><input type="checkbox" data-check /> Casar com alguém</label>
+                <label class="check"><input type="checkbox" data-check /> Completar o Centro Comunitário</label>
+                <label class="check"><input type="checkbox" data-check /> Ganhar 100.000 ouro</label>
+                <label class="check"><input type="checkbox" data-check /> Chegar ao andar 120 da mina</label>
+                <label class="check"><input type="checkbox" data-check /> Completar coleção de peixes (base)</label>
+              </div>
+            </section>
+          </div>
+        </div>
+
+        <div class="game-block is-hidden" data-game-section="haunted">
+          <div class="notice">
+            As listas de Haunted serão adicionadas quando o jogo lançar.
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer" role="contentinfo">
+    <div class="container footer__inner">
+      <div class="footer__col">
+        <h5>Sobre</h5>
+        <p>Rasgado Games é um guia limpo e organizado para Stardew Valley e Haunted Chocolatier. Sem anúncios, sem distrações.</p>
+        <p class="meta">Não afiliado à ConcernedApe. Stardew Valley e Haunted Chocolatier são marcas de seus respectivos donos.</p>
+      </div>
+
+      <div class="footer__col">
+        <h5>Links úteis</h5>
+        <ul class="footer__links">
+          <li><a href="https://store.steampowered.com/news/app/413150/" target="_blank" rel="noopener">Notas oficiais (Steam)</a></li>
+          <li><a href="https://www.stardewvalley.net/" target="_blank" rel="noopener">Site oficial Stardew</a></li>
+          <li><a href="https://www.hauntedchocolatier.net/" target="_blank" rel="noopener">Site oficial Haunted</a></li>
+        </ul>
+      </div>
+
+      <div class="footer__col">
+        <h5>Comunidade</h5>
+        <div class="social">
+          <a class="social__link" href="https://discord.gg/tGG8avC6Nb" target="_blank" rel="noopener" aria-label="Discord Rasgado Games">Discord</a>
+          <a class="social__link" href="https://www.youtube.com/@RasgadoGames" target="_blank" rel="noopener" aria-label="YouTube Rasgado Games">YouTube</a>
+          <a class="social__link" href="https://www.instagram.com/rasgadogames/" target="_blank" rel="noopener" aria-label="Instagram @rasgadogames">Instagram</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="container footer__bottom">
+      <p>&copy; 2026 Rasgado Games. <a href="privacidade.html">Privacidade</a> · <a href="termos.html">Termos</a></p>
+    </div>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
+  <script src="supabase-config.js" defer></script>
+  <script src="script.js" defer></script>
+</body>
+</html>
