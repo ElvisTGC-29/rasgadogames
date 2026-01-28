@@ -269,6 +269,8 @@ a:hover{ text-decoration-thickness:2px; }
   line-height:1;
 }
 
+.btn--small{ padding: 8px 12px; font-size: 13px; border-radius: 12px; }
+
 .btn--primary{
   background: var(--accent);
   color: #2a1a06;
@@ -426,6 +428,106 @@ a:hover{ text-decoration-thickness:2px; }
   padding: 16px;
   border-radius: var(--radius);
 }
+
+
+/* Alerts (mensagens do login/cadastro/perfil) */
+.alertSlot{ margin-top: 12px; }
+.alert{
+  border-radius: 16px;
+  padding: 12px 14px;
+  border: 1px solid rgba(255,255,255,.14);
+  background: rgba(0,0,0,.18);
+  box-shadow: 0 14px 38px rgba(0,0,0,.24);
+}
+.alert__title{ font-weight: 1000; letter-spacing: .2px; margin-bottom: 4px; }
+.alert__msg{ color: var(--text); opacity: .95; font-size: 14px; line-height: 1.45; }
+.alert__actions{ margin-top: 10px; display:flex; gap: 10px; flex-wrap: wrap; }
+
+.alert--success{
+  border-color: rgba(90, 255, 170, .22);
+  background: rgba(20, 70, 45, .30);
+}
+.alert--warn{
+  border-color: rgba(255, 204, 106, .28);
+  background: rgba(110, 70, 20, .30);
+}
+.alert--info{
+  border-color: rgba(255,255,255,.14);
+}
+
+/* Linklike como botão (ex.: "Reenviar confirmação") */
+.linklike--btn{
+  display:inline-flex;
+  align-items:center;
+  justify-content:flex-start;
+  margin-top: 10px;
+  font-size: 13px;
+  opacity: .95;
+}
+
+/* Conta / Perfil */
+.accountGrid{
+  display:grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px;
+  align-items:start;
+}
+@media (max-width: 920px){
+  .accountGrid{ grid-template-columns: 1fr; }
+}
+.profileHead{
+  display:flex;
+  gap: 12px;
+  align-items:center;
+  margin: 10px 0 12px;
+}
+.profileAvatar{
+  width: 52px;
+  height: 52px;
+  border-radius: 16px;
+  display:grid;
+  place-items:center;
+  font-weight: 1000;
+  background: rgba(255,255,255,.10);
+  border: 1px solid rgba(255,255,255,.16);
+}
+.profileName{ font-weight: 1000; }
+.profileEmail{ color: var(--muted); font-size: 13px; margin-top: 2px; }
+
+.statRow{
+  display:flex;
+  gap: 16px;
+  margin: 12px 0;
+  flex-wrap: wrap;
+}
+.stat{
+  flex: 1 1 140px;
+  border-radius: 14px;
+  padding: 10px 12px;
+  border: 1px solid rgba(255,255,255,.12);
+  background: rgba(0,0,0,.12);
+}
+.stat__label{ font-size: 12px; color: var(--muted); }
+.stat__value{ font-size: 20px; font-weight: 1000; margin-top: 2px; }
+
+.xp{ margin-top: 10px; }
+.xp__bar{
+  height: 10px;
+  border-radius: 999px;
+  background: rgba(0,0,0,.22);
+  border: 1px solid rgba(255,255,255,.12);
+  overflow:hidden;
+}
+.xp__fill{
+  height: 100%;
+  background: rgba(var(--accent-rgb), .75);
+}
+.xp__text{ margin-top: 8px; font-size: 13px; color: var(--muted); }
+
+.badgeRow{ margin-top: 12px; display:flex; gap: 10px; flex-wrap: wrap; }
+.badge--role{ background: rgba(255,255,255,.10); }
+.badge--perk{ background: rgba(var(--accent-rgb), .18); border-color: rgba(var(--accent-rgb), .22); }
+
 
 /* Accordion */
 .accordion{
@@ -1531,9 +1633,17 @@ body.page--forum footer{ position: relative; z-index: 1; }
 }
 .tabs{
   display:flex;
+  align-items:center;
+  justify-content: space-between;
   gap: 10px;
   flex-wrap: wrap;
   margin: 0 0 14px;
+}
+.tabs__group{
+  display:flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  align-items:center;
 }
 .tabs .btn{
   padding: 10px 14px;

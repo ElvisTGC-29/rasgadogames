@@ -2,6 +2,73 @@
   const qs = (sel, el=document) => el.querySelector(sel);
   const qsa = (sel, el=document) => Array.from(el.querySelectorAll(sel));
 
+  // ---------- Flash messages (sessionStorage) ----------
+  const RG_FLASH_KEY = 'rg.flash.v1';
+  const RG_NEXT_KEY = 'rg.nextAfterLogin.v1';
+  const RG_LAST_EMAIL_KEY = 'rg.lastSignupEmail.v1';
+
+  function rgSetFlash({ type='info', title='', message='', ttlMs=9000 } = {}){
+    try{
+      sessionStorage.setItem(RG_FLASH_KEY, JSON.stringify({ type, title, message, ttlMs, ts: Date.now() }));
+    }catch(_){}
+  }
+  function rgPopFlash(){
+    try{
+      const raw = sessionStorage.getItem(RG_FLASH_KEY);
+      if(!raw) return null;
+      sessionStorage.removeItem(RG_FLASH_KEY);
+      const data = JSON.parse(raw);
+      if(!data) return null;
+      const ttl = Number(data.ttlMs ?? 9000);
+      const ts = Number(data.ts ?? 0);
+      if(ttl > 0 && ts && Date.now() - ts > ttl) return null;
+      return data;
+    }catch(_){ return null; }
+  }
+  function rgStoreNext(nextUrl){
+    try{
+      if(nextUrl) sessionStorage.setItem(RG_NEXT_KEY, String(nextUrl));
+    }catch(_){}
+  }
+  function rgGetNext(){
+    try{
+      return sessionStorage.getItem(RG_NEXT_KEY) || '';
+    }catch(_){ return ''; }
+  }
+  function rgClearNext(){
+    try{ sessionStorage.removeItem(RG_NEXT_KEY); }catch(_){}
+  }
+  function rgStoreLastEmail(email){
+    try{
+      if(email) sessionStorage.setItem(RG_LAST_EMAIL_KEY, String(email));
+    }catch(_){}
+  }
+  function rgGetLastEmail(){
+    try{ return sessionStorage.getItem(RG_LAST_EMAIL_KEY) || ''; }catch(_){ return ''; }
+  }
+
+  function escapeHtmlLite(str){
+    return String(str).replace(/[&<>"']/g, s => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[s]));
+  }
+
+  function setAlert(el, { type='info', title='', message='', actionsHtml='' } = {}){
+    if(!el) return;
+    const t = escapeHtmlLite(title);
+    const m = escapeHtmlLite(message);
+    const actions = actionsHtml ? `<div class="alert__actions">${actionsHtml}</div>` : '';
+    el.innerHTML = `
+      <div class="alert alert--${escapeHtmlLite(type)}" role="status" aria-live="polite">
+        ${t ? `<div class="alert__title">${t}</div>` : ``}
+        ${m ? `<div class="alert__msg">${m}</div>` : ``}
+        ${actions}
+      </div>
+    `;
+  }
+  function clearAlert(el){
+    if(!el) return;
+    el.innerHTML = '';
+  }
+
   // ---------- Mobile nav ----------
   const navToggle = qs('.nav-toggle');
   const nav = qs('#navMain');
@@ -145,20 +212,6 @@
   //   window.rgCaptcha = { provider: 'turnstile', turnstileSiteKey: 'SEU_SITE_KEY_AQUI' }
   const RG_CAPTCHA = window.rgCaptcha || { provider: '', turnstileSiteKey: '' };
 
-  // Fallback: se o siteKey vier vazio (cache/arquivo antigo no GitHub Pages),
-  // usamos um valor embutido para não travar o cadastro/login.
-  // (O siteKey é público; o SECRET fica só no Supabase.)
-  const TURNSTILE_SITEKEY_FALLBACK = '0x4AAAAAACU696IdHGV8UAq5';
-  if (RG_CAPTCHA && RG_CAPTCHA.provider === 'turnstile') {
-    const k = (RG_CAPTCHA.turnstileSiteKey || '').trim();
-    if (!k) {
-      RG_CAPTCHA.turnstileSiteKey = TURNSTILE_SITEKEY_FALLBACK;
-      if (window.rgCaptcha) window.rgCaptcha.turnstileSiteKey = TURNSTILE_SITEKEY_FALLBACK;
-      console.warn('[RG] turnstileSiteKey estava vazio; usando fallback embutido. Verifique supabase-config.js publicado.');
-    }
-  }
-
-
   const RG_CAPTCHA_STATE = {
     login: { token: '', widgetId: null },
     signup: { token: '', widgetId: null },
@@ -264,7 +317,8 @@
   function getEmailRedirectTo(){
     // Base do site (funciona em GitHub Pages e em testes locais)
     const basePath = (location.pathname || '/').replace(/\\/g,'/').replace(/\/[^\/]*$/, '/');
-    return `${location.origin}${basePath}conta.html#login`;
+    // Usa query param (mais confiável que hash) para exibirmos mensagens de confirmação
+    return `${location.origin}${basePath}conta.html?from=confirm`;
   }
   // ===== Stardew: cronograma anual (tema por estação do ano real) =====
   // Aplica automaticamente em páginas com: <body data-theme="stardew" data-season="auto">
@@ -347,11 +401,17 @@
 
     const prefix = getPrefix();
     const next = getNextParam();
+
+    // Guarda o destino para sobreviver ao fluxo de confirmação de e-mail
+    rgStoreNext(next);
+
+    rgSetFlash({
+      type: 'warn',
+      title: 'Acesso restrito',
+      message: 'Para acessar esta página, faça login ou crie uma conta.'
+    });
+
     const url = `${prefix}conta.html?next=${encodeURIComponent(next)}#login`;
-
-    const gate = qs('#forumGate');
-    if(gate) gate.hidden = false;
-
     window.location.replace(url);
   }
 
@@ -402,22 +462,184 @@
     window.addEventListener('hashchange', syncFromHash);
     syncFromHash();
 
-    const next = new URLSearchParams(location.search).get('next');
+    // next pode vir da URL (quando o usuário foi redirecionado) ou do storage (quando volta via e-mail de confirmação)
+    const qsNext = new URLSearchParams(location.search).get('next') || '';
+    if(qsNext) rgStoreNext(qsNext);
+    const next = qsNext || rgGetNext();
 
     const loginForm = qs('#loginForm');
     const signupForm = qs('#signupForm');
     const loginMsg = qs('#loginMsg');
     const signupMsg = qs('#signupMsg');
+    const btnResendLogin = qs('#btnResendLogin');
+    const btnResendSignup = qs('#btnResendSignup');
+    const accountSection = qs('#accountSection');
+    const authSection = qs('#authSection');
+    const profileMsg = qs('#profileMsg');
+
+    // ----- Mensagens persistentes / redirecionamentos -----
+    const flash = rgPopFlash();
+    if(flash && loginMsg){
+      setAlert(loginMsg, flash);
+    }
+
+    // Prefill e-mail (útil depois do cadastro e confirmação)
+    const lastEmail = rgGetLastEmail();
+    const loginEmailInput = qs('#loginForm input[name="email"]');
+    const signupEmailInput = qs('#signupForm input[name="email"]');
+    if(lastEmail){
+      if(loginEmailInput && !loginEmailInput.value) loginEmailInput.value = lastEmail;
+      if(signupEmailInput && !signupEmailInput.value) signupEmailInput.value = lastEmail;
+    }
+
+    // UI: se estiver logado, mostra área de conta e esconde a grade de auth
+    const sessNow = getSession();
+    if(accountSection && authSection){
+      accountSection.hidden = !sessNow;
+      authSection.hidden = Boolean(sessNow);
+    }
+
+    // Trata retornos de confirmação / links expirados
+    (async () => {
+      try{
+        const url = new URL(window.location.href);
+        const sp = url.searchParams;
+
+        // Hash params podem vir como "#access_token=..." ou "#error_code=..."
+        const hashRaw = (window.location.hash || '').replace(/^#/, '');
+        const hp = new URLSearchParams(hashRaw);
+
+        const fromConfirm = sp.get('from') === 'confirm';
+        const errCode = (hp.get('error_code') || sp.get('error_code') || '').toLowerCase();
+        const errDesc = (hp.get('error_description') || sp.get('error_description') || '').replace(/\+/g,' ');
+
+        // Detecta link expirado
+        const isExpired = errCode === 'otp_expired' || /expired/i.test(errDesc);
+
+        // Se vier com erro no hash, prioriza mostrar (não some em 1 frame)
+        if(isExpired){
+          // Mantém na aba de login
+          if(loginMsg){
+            setAlert(loginMsg, {
+              type: 'warn',
+              title: 'Link expirado',
+              message: 'Esse link de confirmação expirou. Reenvie a confirmação e use o novo e-mail.',
+              ttlMs: 0
+            });
+          }
+          if(btnResendLogin) btnResendLogin.hidden = false;
+          // Não limpa o hash aqui — o usuário pode copiar/colar pra debug
+          return;
+        }
+
+        // Se voltamos por e-mail e o hash contém tokens, tenta capturar sessão automaticamente
+        const hasTokens = Boolean(hp.get('access_token') || hp.get('refresh_token'));
+
+        if(hasTokens && sb?.auth?.getSessionFromUrl){
+          const { data, error } = await sb.auth.getSessionFromUrl({ storeSession: true });
+          if(error){
+            // Mostra erro amigável, mas não trava o usuário
+            if(loginMsg){
+              setAlert(loginMsg, {
+                type: 'warn',
+                title: 'Quase lá…',
+                message: prettyAuthError(error),
+                ttlMs: 0
+              });
+            }
+            if(btnResendLogin) btnResendLogin.hidden = false;
+            return;
+          }
+
+          if(data?.session){
+            await refreshSession();
+            renderAuthActions();
+            rgSetFlash({ type: 'success', title: 'E-mail confirmado', message: 'Sua conta foi confirmada e você já está logado.' });
+            const dest = next ? next : 'index.html#home';
+            rgClearNext();
+            window.location.replace(dest);
+            return;
+          }
+        }
+
+        // Fluxo PKCE pode retornar "?code=..."
+        const code = sp.get('code') || hp.get('code');
+        if(code && sb?.auth?.exchangeCodeForSession){
+          const { data, error } = await sb.auth.exchangeCodeForSession(code);
+          if(error){
+            if(loginMsg){
+              setAlert(loginMsg, { type: 'warn', title: 'Não deu para concluir', message: prettyAuthError(error), ttlMs: 0 });
+            }
+            if(btnResendLogin) btnResendLogin.hidden = false;
+            return;
+          }
+          if(data?.session){
+            await refreshSession();
+            renderAuthActions();
+            rgSetFlash({ type: 'success', title: 'E-mail confirmado', message: 'Sua conta foi confirmada e você já está logado.' });
+            const dest = next ? next : 'index.html#home';
+            rgClearNext();
+            window.location.replace(dest);
+            return;
+          }
+        }
+
+        if(fromConfirm && !sessNow && loginMsg){
+          setAlert(loginMsg, {
+            type: 'success',
+            title: 'E-mail confirmado',
+            message: 'Agora você já pode entrar com seu e-mail e senha.',
+            ttlMs: 0
+          });
+          if(btnResendLogin) btnResendLogin.hidden = true;
+        }
+
+      }catch(_){}
+    })();
+
+    // Reenviar confirmação
+    async function resendConfirm(email, targetMsgEl, targetBtn){
+      if(!sb) return;
+      const em = String(email || '').trim();
+      if(!em){
+        if(targetMsgEl) setAlert(targetMsgEl, { type: 'warn', title: 'Faltou o e-mail', message: 'Digite seu e-mail primeiro.' });
+        return;
+      }
+      try{
+        if(targetBtn) targetBtn.disabled = true;
+        const { error } = await sb.auth.resend({
+          type: 'signup',
+          email: em,
+          options: { emailRedirectTo: getEmailRedirectTo() }
+        });
+        if(error) throw error;
+        rgStoreLastEmail(em);
+        if(targetMsgEl) setAlert(targetMsgEl, { type: 'success', title: 'Enviado!', message: 'Confirmação reenviada. Confira sua caixa de entrada e o spam.' , ttlMs: 0 });
+      }catch(err){
+        if(targetMsgEl) setAlert(targetMsgEl, { type: 'warn', title: 'Não foi possível reenviar', message: prettyAuthError(err), ttlMs: 0 });
+      }finally{
+        if(targetBtn) targetBtn.disabled = false;
+      }
+    }
+
+    if(btnResendLogin){
+      btnResendLogin.addEventListener('click', () => resendConfirm(loginEmailInput?.value, loginMsg, btnResendLogin));
+    }
+    if(btnResendSignup){
+      btnResendSignup.addEventListener('click', () => resendConfirm(signupEmailInput?.value, signupMsg, btnResendSignup));
+    }
 
     if(loginForm){
       loginForm.addEventListener('submit', async (e) => {
         e.preventDefault();
-        if(loginMsg) loginMsg.textContent = '';
+        clearAlert(loginMsg);
         const fd = new FormData(loginForm);
 
         try{
           const email = String(fd.get('email') || '').trim();
           const password = String(fd.get('password') || '');
+          rgStoreLastEmail(email);
+          if(next) rgStoreNext(next);
 
           const captchaToken = getCaptchaToken('login');
           if(RG_CAPTCHA.provider === 'turnstile' && !captchaToken){
@@ -435,9 +657,17 @@
           await refreshSession();
           renderAuthActions();
 
+          rgClearNext();
           window.location.href = next ? next : 'index.html#home';
         }catch(err){
-          if(loginMsg) loginMsg.textContent = prettyAuthError(err);
+          const msg = prettyAuthError(err);
+          if(loginMsg) setAlert(loginMsg, { type: 'warn', title: 'Não foi possível entrar', message: msg, ttlMs: 0 });
+
+          // Se o e-mail não foi confirmado, oferece reenviar confirmação
+          const low = String(msg || '').toLowerCase();
+          if(btnResendLogin){
+            btnResendLogin.hidden = !(low.includes('confirm') || low.includes('não confirmado') || low.includes('not confirmed'));
+          }
           resetCaptcha('login');
         }
       });
@@ -446,24 +676,25 @@
     if(signupForm){
       signupForm.addEventListener('submit', async (e) => {
         e.preventDefault();
-        if(signupMsg) signupMsg.textContent = '';
+        clearAlert(signupMsg);
         const fd = new FormData(signupForm);
 
         const p1 = String(fd.get('password') || '');
         const p2 = String(fd.get('password2') || '');
         if(p1 !== p2){
-          if(signupMsg) signupMsg.textContent = 'As senhas não coincidem.';
+          if(signupMsg) setAlert(signupMsg, { type:'warn', title:'Senhas diferentes', message:'As senhas não coincidem.', ttlMs: 0 });
           return;
         }
 
         try{
           const username = String(fd.get('username') || '').trim();
           const email = String(fd.get('email') || '').trim();
-
+          rgStoreLastEmail(email);
+          if(next) rgStoreNext(next);
 
           const captchaToken = getCaptchaToken('signup');
           if(RG_CAPTCHA.provider === 'turnstile' && !captchaToken){
-            if(signupMsg) signupMsg.textContent = 'Conclua a verificação anti-bot (Turnstile) para criar conta.';
+            if(signupMsg) setAlert(signupMsg, { type:'warn', title:'Verificação necessária', message:'Conclua a verificação anti-bot (Turnstile) para criar conta.', ttlMs: 0 });
             return;
           }
           const { data, error } = await sb.auth.signUp({
@@ -477,21 +708,113 @@
           if(data?.session){
             await refreshSession();
             renderAuthActions();
-            window.location.href = next ? next : 'index.html#home';
+            rgClearNext();
+          window.location.href = next ? next : 'index.html#home';
             return;
           }
 
+          rgStoreLastEmail(email);
+
           if(signupMsg){
-            signupMsg.textContent = 'Conta criada! Confira seu e-mail para confirmar e depois volte para entrar.';
+            setAlert(signupMsg, {
+              type: 'success',
+              title: 'Conta criada',
+              message: 'Enviamos um e-mail de confirmação. Confirme e depois entre com seu e-mail e senha.',
+              ttlMs: 0,
+              actionsHtml: `<a class="btn btn--ghost btn--small" href="conta.html#login">Ir para entrar</a>`
+            });
           }
-          // Move para o login (melhor UX)
-          window.location.hash = '#login';
+          if(btnResendSignup) btnResendSignup.hidden = false;
         }catch(err){
-          if(signupMsg) signupMsg.textContent = prettyAuthError(err);
+          const msg = prettyAuthError(err);
+          if(signupMsg) setAlert(signupMsg, { type: 'warn', title: 'Não foi possível criar conta', message: msg, ttlMs: 0 });
           resetCaptcha('signup');
         }
       });
     }
+
+    // ----- Área do usuário (perfil) — base para nick/foto/pontos/cargos -----
+    const profileFormEl = qs('#profileForm');
+    const profileUsernameEl = qs('#profileUsername');
+    const profileEmailEl = qs('#profileEmail');
+    const profileAvatarEl = qs('#profileAvatar');
+    const levelEl = qs('#profileLevel');
+    const pointsEl = qs('#profilePoints');
+    const badgeRow = qs('#profileBadges');
+    const xpFill = qs('[data-xp-fill]');
+    const xpText = qs('[data-xp-text]');
+
+    function getLocalPoints(userId){
+      try{
+        const raw = localStorage.getItem(`rg.points.${userId}`) || '0';
+        return Math.max(0, Number(raw) || 0);
+      }catch(_){ return 0; }
+    }
+
+    function renderProfile(){
+      const s = getSession();
+      if(!s) return;
+
+      if(profileUsernameEl) profileUsernameEl.textContent = s.username || 'Usuário';
+      if(profileEmailEl) profileEmailEl.textContent = s.email || '—';
+      if(profileAvatarEl){
+        const initial = (s.username || 'U').trim().slice(0,1).toUpperCase();
+        profileAvatarEl.textContent = initial || 'U';
+      }
+
+      const pts = getLocalPoints(s.id);
+      const level = 1 + Math.floor(pts / 100);
+      const into = pts % 100;
+      const pct = Math.min(100, Math.max(0, into));
+
+      if(levelEl) levelEl.textContent = String(level);
+      if(pointsEl) pointsEl.textContent = String(pts);
+      if(xpFill) xpFill.style.width = `${pct}%`;
+      if(xpText) xpText.textContent = `${into}/100`;
+
+      // Cargos/escudos (placeholder): por enquanto todo mundo começa como "Membro"
+      if(badgeRow){
+        badgeRow.innerHTML = `
+          <span class="badge badge--role" title="Cargo (em breve)">Membro</span>
+          <span class="badge badge--perk" title="Desbloqueios por nível (em breve)">Emojis: 🔒</span>
+        `;
+      }
+    }
+
+    renderProfile();
+
+    if(profileFormEl){
+      profileFormEl.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        if(profileMsg) clearAlert(profileMsg);
+
+        const s = getSession();
+        if(!s) return;
+
+        const fd = new FormData(profileFormEl);
+        const username = String(fd.get('username') || '').trim();
+
+        if(username.length < 3 || username.length > 20){
+          if(profileMsg) setAlert(profileMsg, { type:'warn', title:'Nome inválido', message:'Use 3–20 caracteres.', ttlMs: 0 });
+          return;
+        }
+
+        try{
+          const { error } = await sb.auth.updateUser({ data: { username } });
+          if(error) throw error;
+
+          await refreshSession();
+          renderAuthActions();
+          renderProfile();
+
+          if(profileMsg) setAlert(profileMsg, { type:'success', title:'Perfil atualizado', message:'Seu nick foi atualizado com sucesso.', ttlMs: 0 });
+        }catch(err){
+          if(profileMsg) setAlert(profileMsg, { type:'warn', title:'Não foi possível atualizar', message: prettyAuthError(err), ttlMs: 0 });
+        }
+      });
+    }
+
+
   }
 
   // Boot do auth: mantém navbar e páginas privadas sincronizadas com a sessão Supabase

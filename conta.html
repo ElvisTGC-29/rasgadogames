@@ -78,6 +78,7 @@
   </header>
 
 <main id="conteudo">
+    <span id="login" class="hashAnchor"></span>
     <span id="entrar" class="hashAnchor"></span>
     <span id="cadastro" class="hashAnchor"></span>
   <section class="hero">
@@ -85,17 +86,76 @@
       <h2 class="hero__title">Conta Rasgado Games</h2>
       <p class="hero__subtitle">Crie sua conta para acessar o fórum e recursos salvos. Tudo fica organizado e sem bagunça.</p>
       <div class="notice">
-        <strong>Importante:</strong> contas e login são gerenciados pelo <em>Supabase</em>. Se a confirmação de e-mail estiver ativa, confirme no seu e-mail antes do primeiro login.
+        <strong>Importante:</strong> se a confirmação de e-mail estiver ativa, você precisa <em>confirmar o e-mail</em> antes do primeiro login. Às vezes a mensagem cai em <strong>Spam</strong>.
       </div>
     </div>
   </section>
 
-  <section class="section">
+  <section class="section" id="accountSection" hidden>
+    <div class="container">
+      <div class="accountGrid">
+        <article class="card">
+          <h3 class="card__title">Seu perfil</h3>
+
+          <div class="profileHead">
+            <div id="profileAvatar" class="profileAvatar" aria-hidden="true">U</div>
+            <div>
+              <div id="profileUsername" class="profileName">Usuário</div>
+              <div id="profileEmail" class="profileEmail">—</div>
+            </div>
+          </div>
+
+          <div id="profileMsg" class="alertSlot" aria-live="polite"></div>
+
+          <form id="profileForm" class="form">
+            <label class="field">
+              <span class="field__label">Alterar nick</span>
+              <input class="field__input" type="text" name="username" autocomplete="nickname" minlength="3" maxlength="20" required />
+              <span class="field__hint">Esse é o nome que aparece no fórum. Foto, cargos/escudos e níveis estão preparados e entram na próxima etapa.</span>
+            </label>
+
+            <button class="btn btn--primary btn--block" type="submit">Salvar nick</button>
+          </form>
+        </article>
+
+        <article class="card">
+          <h3 class="card__title">Progressão (em construção)</h3>
+          <p class="card__text">Você vai ganhar pontos por participação no fórum e subir de nível, liberando emojis e estilos no nick.</p>
+
+          <div class="statRow">
+            <div class="stat">
+              <div class="stat__label">Nível</div>
+              <div class="stat__value" id="profileLevel">1</div>
+            </div>
+            <div class="stat">
+              <div class="stat__label">Pontos</div>
+              <div class="stat__value" id="profilePoints">0</div>
+            </div>
+          </div>
+
+          <div class="xp">
+            <div class="xp__bar"><div class="xp__fill" data-xp-fill style="width:0%"></div></div>
+            <div class="xp__text">XP: <span data-xp-text>0/100</span></div>
+          </div>
+
+          <div class="badgeRow" id="profileBadges"></div>
+
+          <p class="muted" style="margin-top:12px">Administração de cargos/escudos será feita pelo backend (vamos montar logo).</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="authSection">
     <div class="container authpage">
       <div class="tabs" role="tablist" aria-label="Entrar ou criar conta">
-        <a class="btn btn--primary" id="tabLogin" href="conta.html#login" role="tab" aria-selected="true">Entrar</a>
-        <a class="btn btn--ghost" id="tabSignup" href="conta.html#cadastro" role="tab" aria-selected="false">Criar conta</a>
-        <a class="btn btn--ghost" href="index.html#home">Voltar</a>
+        <div class="tabs__group">
+          <a class="btn btn--primary" id="tabLogin" href="conta.html#login" role="tab" aria-selected="true">Entrar</a>
+          <a class="btn btn--ghost" id="tabSignup" href="conta.html#cadastro" role="tab" aria-selected="false">Criar conta</a>
+        </div>
+        <div class="tabs__group">
+          <a class="btn btn--ghost" href="index.html#home">Voltar</a>
+        </div>
       </div>
 
       <div class="authgrid">
@@ -117,11 +177,13 @@
             <div class="captchaBox is-hidden" data-captcha="login" aria-label="Verificação anti-bot"></div>
             <button class="btn btn--primary btn--block" type="submit">Entrar</button>
 
+            <button class="linklike linklike--btn" type="button" id="btnResendLogin" hidden>Reenviar confirmação de e-mail</button>
+
             <p class="form__footer">
               Ainda não tem conta?
               <a class="linklike" href="conta.html#cadastro">Cadastre-se</a>
             </p>
-            <p class="muted" id="loginMsg" aria-live="polite"></p>
+            <div id="loginMsg" class="alertSlot" aria-live="polite"></div>
           </form>
         </article>
 
@@ -155,11 +217,13 @@
             <div class="captchaBox is-hidden" data-captcha="signup" aria-label="Verificação anti-bot"></div>
             <button class="btn btn--primary btn--block" type="submit">Criar conta</button>
 
+            <button class="linklike linklike--btn" type="button" id="btnResendSignup" hidden>Reenviar confirmação de e-mail</button>
+
             <p class="form__footer">
               Já tem conta?
               <a class="linklike" href="conta.html#login">Entrar</a>
             </p>
-            <p class="muted" id="signupMsg" aria-live="polite"></p>
+            <div id="signupMsg" class="alertSlot" aria-live="polite"></div>
           </form>
         </article>
 
@@ -219,7 +283,7 @@
     </div>
   </footer>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
-  <script src="supabase-config.js?v=24" defer></script>
-  <script src="script.js?v=24" defer></script>
+  <script src="supabase-config.js" defer></script>
+  <script src="script.js" defer></script>
 </body>
 </html>
