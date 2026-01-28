@@ -168,6 +168,20 @@ a:hover{ text-decoration-thickness:2px; }
 }
 
 
+/* Header: evita quebra (botões e itens) */
+.header__actions{ flex-shrink:0; }
+.header__actions .btn, .userchip{ white-space:nowrap; }
+.nav__dropdown, .nav__link{ flex-shrink:0; }
+
+/* Em telas menores, escondemos o subtítulo para não "quebrar" a navbar */
+@media (max-width: 1120px){
+  .brand__tagline{ display:none; }
+  .header__inner{ gap: 14px; }
+  .nav{ gap: 10px; }
+}
+
+
+
 .nav{
   display:flex;
   gap:16px;
@@ -1504,9 +1518,14 @@ body.page--forum footer{ position: relative; z-index: 1; }
 }
 .authgrid{
   display:grid;
-  grid-template-columns: 1.1fr .9fr;
+  grid-template-columns: minmax(360px, 1fr) minmax(280px, 360px);
   gap: 18px;
+  align-items:start;
 }
+@media (max-width: 920px){
+  .authgrid{ grid-template-columns: 1fr; }
+}
+
 @media (max-width: 900px){
   .authgrid{ grid-template-columns: 1fr; }
 }

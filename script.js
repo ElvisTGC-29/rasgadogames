@@ -140,6 +140,32 @@
     return RG_SB_SESSION;
   }
 
+  function prettyAuthError(err){
+    const msg = (err && err.message) ? err.message : String(err);
+    const low = msg.toLowerCase();
+
+    if(low.includes('captcha') && low.includes('failed')){
+      return 'Falha no CAPTCHA do Supabase. Desative em Authentication → Attack Protection → CAPTCHA (ou configure Turnstile/hCaptcha e implemente no site).';
+    }
+    if(low.includes('invalid login credentials')){
+      return 'E-mail ou senha inválidos.';
+    }
+    if(low.includes('email not confirmed') || low.includes('not confirmed')){
+      return 'Seu e-mail ainda não foi confirmado. Abra o e-mail de confirmação e tente novamente.';
+    }
+    if(low.includes('already registered') || low.includes('already exists') || low.includes('user already registered')){
+      return 'Esse e-mail já está cadastrado. Use "Entrar" ou recupere a senha.';
+    }
+    return msg;
+  }
+
+  function getEmailRedirectTo(){
+    // Base do site (funciona em GitHub Pages e em testes locais)
+    const basePath = (location.pathname || '/').replace(/\/g,'/').replace(/\/[^\/]*$/, '/');
+    return `${location.origin}${basePath}conta.html#login`;
+  }
+
+
   async function logout(){
     if(!sb) return;
     await sb.auth.signOut();
@@ -253,8 +279,7 @@
 
           window.location.href = next ? next : 'index.html#home';
         }catch(err){
-          const msg = (err && err.message) ? err.message : String(err);
-          if(loginMsg) loginMsg.textContent = msg;
+          if(loginMsg) loginMsg.textContent = prettyAuthError(err);
         }
       });
     }
@@ -279,7 +304,7 @@
           const { data, error } = await sb.auth.signUp({
             email,
             password: p1,
-            options: { data: { username } }
+            options: { data: { username }, emailRedirectTo: getEmailRedirectTo() }
           });
           if(error) throw error;
 
@@ -297,8 +322,7 @@
           // Move para o login (melhor UX)
           window.location.hash = '#login';
         }catch(err){
-          const msg = (err && err.message) ? err.message : String(err);
-          if(signupMsg) signupMsg.textContent = msg;
+          if(signupMsg) signupMsg.textContent = prettyAuthError(err);
         }
       });
     }
