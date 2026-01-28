@@ -78,6 +78,8 @@
   </header>
 
 <main id="conteudo">
+    <span id="entrar" class="hashAnchor"></span>
+    <span id="cadastro" class="hashAnchor"></span>
   <section class="hero">
     <div class="container hero__inner authpage">
       <h2 class="hero__title">Conta Rasgado Games</h2>
@@ -112,6 +114,7 @@
               <input class="field__input" type="password" name="password" autocomplete="current-password" required />
             </label>
 
+            <div class="captchaBox is-hidden" data-captcha="login" aria-label="Verificação anti-bot"></div>
             <button class="btn btn--primary btn--block" type="submit">Entrar</button>
 
             <p class="form__footer">
@@ -149,6 +152,7 @@
               <input class="field__input" type="password" name="password2" autocomplete="new-password" minlength="6" required />
             </label>
 
+            <div class="captchaBox is-hidden" data-captcha="signup" aria-label="Verificação anti-bot"></div>
             <button class="btn btn--primary btn--block" type="submit">Criar conta</button>
 
             <p class="form__footer">

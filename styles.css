@@ -1610,3 +1610,62 @@ body.page--forum[data-theme="haunted"]::before{
   .header .brand{ min-width: 0; max-width: none; }
   .header .brand__tagline{ white-space: normal; }
 }
+
+
+/* ===== Account anchors & captcha ===== */
+.hashAnchor{
+  display:block;
+  height:0;
+  scroll-margin-top: 100px;
+}
+
+.captchaBox{
+  margin: 12px 0 6px;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  min-height: 72px;
+}
+.captchaBox.is-hidden{ display:none; }
+
+.captchaBox--notice{
+  justify-content:flex-start;
+  align-items:flex-start;
+  min-height: auto;
+}
+.captchaNotice{
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: rgba(0,0,0,.04);
+  border: 1px solid rgba(0,0,0,.08);
+  font-size: 13px;
+  line-height: 1.35;
+}
+
+/* ===== Stardew (tema por estação do ano real) ===== */
+/* Ative em páginas Stardew com: <body data-theme="stardew" data-season="auto"> */
+body[data-theme="stardew"][data-season="spring"]{
+  --rg-accent: #DFA31B;
+  --rg-brand: #A94E15;
+  --rg-brand2: #5E9A42;
+  --rg-bg: #FFF6E7;
+  --rg-surface: rgba(250, 244, 236, .92);
+}
+body[data-theme="stardew"][data-season="summer"]{
+  /* usa o tema Stardew padrão */
+}
+body[data-theme="stardew"][data-season="autumn"]{
+  --rg-accent: #DB8A44;
+  --rg-brand: #B46321;
+  --rg-brand2: #6A6F19;
+  --rg-bg: #FFF1E3;
+  --rg-surface: rgba(255, 240, 228, .92);
+}
+body[data-theme="stardew"][data-season="winter"]{
+  --rg-accent: #A6F1F9;
+  --rg-brand: #0B3851;
+  --rg-brand2: #136F8E;
+  --rg-bg: #EAF6FB;
+  --rg-surface: rgba(250, 253, 254, .92);
+}
+

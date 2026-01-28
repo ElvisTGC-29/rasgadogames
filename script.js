@@ -139,13 +139,101 @@
     RG_SB_SESSION = data?.session || null;
     return RG_SB_SESSION;
   }
+  // ===== Captcha (Turnstile) =====
+  // Se você ativou CAPTCHA no Supabase (Attack Protection), você precisa enviar o token no login/cadastro.
+  // Config em supabase-config.js:
+  //   window.rgCaptcha = { provider: 'turnstile', turnstileSiteKey: 'SEU_SITE_KEY_AQUI' }
+  const RG_CAPTCHA = window.rgCaptcha || { provider: '', turnstileSiteKey: '' };
+
+  const RG_CAPTCHA_STATE = {
+    login: { token: '', widgetId: null },
+    signup: { token: '', widgetId: null },
+    loaded: false
+  };
+
+  function injectTurnstileScript(){
+    if(RG_CAPTCHA_STATE.loaded) return Promise.resolve();
+    RG_CAPTCHA_STATE.loaded = true;
+
+    return new Promise((resolve, reject) => {
+      const s = document.createElement('script');
+      s.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit';
+      s.async = true;
+      s.defer = true;
+      s.onload = () => resolve();
+      s.onerror = () => reject(new Error('Falha ao carregar Turnstile (Cloudflare).'));
+      document.head.appendChild(s);
+    });
+  }
+
+  async function mountTurnstile(which, container){
+    if(!container) return;
+    if(RG_CAPTCHA.provider !== 'turnstile') return;
+    const siteKey = RG_CAPTCHA.turnstileSiteKey;
+    if(!siteKey){
+      container.innerHTML = '<div class="captchaNotice">CAPTCHA ativo, mas faltou configurar o <strong>Turnstile site key</strong> no <code>supabase-config.js</code>.</div>';
+      container.classList.add('captchaBox--notice');
+      return;
+    }
+
+    await injectTurnstileScript();
+
+    // Espera o objeto global aparecer
+    const wait = () => new Promise((r, j) => {
+      let t = 0;
+      const id = setInterval(() => {
+        t += 50;
+        if(window.turnstile){
+          clearInterval(id); r();
+        }else if(t > 5000){
+          clearInterval(id); j(new Error('Turnstile não respondeu a tempo.'));
+        }
+      }, 50);
+    });
+    await wait();
+
+    // Render
+    try{
+      const wid = window.turnstile.render(container, {
+        sitekey: siteKey,
+        theme: 'light',
+        callback: (token) => {
+          RG_CAPTCHA_STATE[which].token = token || '';
+        },
+        'expired-callback': () => {
+          RG_CAPTCHA_STATE[which].token = '';
+        },
+        'error-callback': () => {
+          RG_CAPTCHA_STATE[which].token = '';
+        }
+      });
+      RG_CAPTCHA_STATE[which].widgetId = wid;
+    }catch(err){
+      container.innerHTML = '<div class="captchaNotice">Não foi possível renderizar o Turnstile. Confira o site key e recarregue.</div>';
+      container.classList.add('captchaBox--notice');
+    }
+  }
+
+  function getCaptchaToken(which){
+    if(RG_CAPTCHA.provider !== 'turnstile') return '';
+    return RG_CAPTCHA_STATE[which]?.token || '';
+  }
+
+  function resetCaptcha(which){
+    if(RG_CAPTCHA.provider !== 'turnstile') return;
+    const wid = RG_CAPTCHA_STATE[which]?.widgetId;
+    RG_CAPTCHA_STATE[which].token = '';
+    if(window.turnstile && wid !== null){
+      try{ window.turnstile.reset(wid); }catch(e){}
+    }
+  }
 
   function prettyAuthError(err){
     const msg = (err && err.message) ? err.message : String(err);
     const low = msg.toLowerCase();
 
     if(low.includes('captcha') && low.includes('failed')){
-      return 'Falha no CAPTCHA do Supabase. Desative em Authentication → Attack Protection → CAPTCHA (ou configure Turnstile/hCaptcha e implemente no site).';
+      return 'Falha na verificação anti-bot (CAPTCHA). Conclua o Turnstile e tente novamente. Se persistir, confira o site key no supabase-config.js e as configurações no Supabase.';
     }
     if(low.includes('invalid login credentials')){
       return 'E-mail ou senha inválidos.';
@@ -161,8 +249,39 @@
 
   function getEmailRedirectTo(){
     // Base do site (funciona em GitHub Pages e em testes locais)
-    const basePath = (location.pathname || '/').replace(/\/g,'/').replace(/\/[^\/]*$/, '/');
+    const basePath = (location.pathname || '/').replace(/\\/g,'/').replace(/\/[^\/]*$/, '/');
     return `${location.origin}${basePath}conta.html#login`;
+  }
+  // ===== Stardew: cronograma anual (tema por estação do ano real) =====
+  // Aplica automaticamente em páginas com: <body data-theme="stardew" data-season="auto">
+  // Padrão: hemisfério sul (Brasil). Para mudar: localStorage.setItem('rgHemisphere','north')
+  function getSeasonByMonth(monthIndex, hemisphere){
+    const hem = (hemisphere || 'south').toLowerCase();
+    // monthIndex: 0=Jan ... 11=Dez
+    if(hem === 'north'){
+      if([11,0,1].includes(monthIndex)) return 'winter';
+      if([2,3,4].includes(monthIndex)) return 'spring';
+      if([5,6,7].includes(monthIndex)) return 'summer';
+      return 'autumn';
+    }
+    // south
+    if([11,0,1].includes(monthIndex)) return 'summer';
+    if([2,3,4].includes(monthIndex)) return 'autumn';
+    if([5,6,7].includes(monthIndex)) return 'winter';
+    return 'spring';
+  }
+
+  function applyStardewAutoSeason(){
+    const b = document.body;
+    if(!b) return;
+    if(b.getAttribute('data-theme') !== 'stardew') return;
+
+    const requested = (b.getAttribute('data-season') || '').toLowerCase();
+    if(requested && requested !== 'auto') return;
+
+    const hem = localStorage.getItem('rgHemisphere') || 'south';
+    const season = getSeasonByMonth(new Date().getMonth(), hem);
+    b.setAttribute('data-season', season);
   }
 
 
@@ -230,6 +349,20 @@
     const tabSignup = qs('#tabSignup');
     const panelLogin = qs('#panelLogin');
     const panelSignup = qs('#panelSignup');
+    // CAPTCHA (Turnstile) — render apenas na página de conta
+    const captchaLoginBox = qs('[data-captcha="login"]');
+    const captchaSignupBox = qs('[data-captcha="signup"]');
+
+    // Mostra/esconde baseado na configuração (sem quebrar se não usar)
+    const usingCaptcha = (RG_CAPTCHA && RG_CAPTCHA.provider === 'turnstile');
+    if(captchaLoginBox) captchaLoginBox.classList.toggle('is-hidden', !usingCaptcha);
+    if(captchaSignupBox) captchaSignupBox.classList.toggle('is-hidden', !usingCaptcha);
+
+    // Render widgets (um para login, um para cadastro)
+    if(usingCaptcha){
+      mountTurnstile('login', captchaLoginBox);
+      mountTurnstile('signup', captchaSignupBox);
+    }
 
     const applyTab = (which) => {
       const isLogin = which !== 'cadastro';
@@ -271,7 +404,18 @@
         try{
           const email = String(fd.get('email') || '').trim();
           const password = String(fd.get('password') || '');
-          const { error } = await sb.auth.signInWithPassword({ email, password });
+
+          const captchaToken = getCaptchaToken('login');
+          if(RG_CAPTCHA.provider === 'turnstile' && !captchaToken){
+            if(loginMsg) loginMsg.textContent = 'Conclua a verificação anti-bot (Turnstile) para entrar.';
+            return;
+          }
+
+          const { error } = await sb.auth.signInWithPassword({
+            email,
+            password,
+            options: captchaToken ? { captchaToken } : undefined
+          });
           if(error) throw error;
 
           await refreshSession();
@@ -280,6 +424,7 @@
           window.location.href = next ? next : 'index.html#home';
         }catch(err){
           if(loginMsg) loginMsg.textContent = prettyAuthError(err);
+          resetCaptcha('login');
         }
       });
     }
@@ -304,7 +449,7 @@
           const { data, error } = await sb.auth.signUp({
             email,
             password: p1,
-            options: { data: { username }, emailRedirectTo: getEmailRedirectTo() }
+            options: { data: { username }, emailRedirectTo: getEmailRedirectTo(), ...(captchaToken ? { captchaToken } : {}) }
           });
           if(error) throw error;
 
@@ -323,6 +468,7 @@
           window.location.hash = '#login';
         }catch(err){
           if(signupMsg) signupMsg.textContent = prettyAuthError(err);
+          resetCaptcha('signup');
         }
       });
     }
@@ -354,6 +500,7 @@
     initAccountPage();
   }
 
+  applyStardewAutoSeason();
   bootAuth();
 
   // ---------- Checklists with localStorage ----------
