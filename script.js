@@ -446,6 +446,12 @@
           const username = String(fd.get('username') || '').trim();
           const email = String(fd.get('email') || '').trim();
 
+
+          const captchaToken = getCaptchaToken('signup');
+          if(RG_CAPTCHA.provider === 'turnstile' && !captchaToken){
+            if(signupMsg) signupMsg.textContent = 'Conclua a verificação anti-bot (Turnstile) para criar conta.';
+            return;
+          }
           const { data, error } = await sb.auth.signUp({
             email,
             password: p1,
