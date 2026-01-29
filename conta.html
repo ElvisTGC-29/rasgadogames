@@ -114,12 +114,24 @@
               <span class="field__hint">Esse é o nome que aparece no fórum. Foto, cargos/escudos e níveis estão preparados e entram na próxima etapa.</span>
             </label>
 
-            <button class="btn btn--primary btn--block" type="submit">Salvar nick</button>
+            <label class="field">
+              <span class="field__label">Foto do perfil (URL)</span>
+              <input class="field__input" type="url" name="avatar_url" placeholder="https://..." inputmode="url" autocomplete="url" />
+              <span class="field__hint">Opcional. Cole o link de uma imagem. (Em breve: upload oficial no site.)</span>
+            </label>
+
+            <label class="field">
+              <span class="field__label">Foto do perfil (arquivo)</span>
+              <input class="field__input" type="file" name="avatar_file" accept="image/*" />
+              <span class="field__hint">Opcional. Por enquanto salva localmente no seu navegador.</span>
+            </label>
+
+            <button class="btn btn--primary btn--block" type="submit">Salvar perfil</button>
           </form>
         </article>
 
         <article class="card">
-          <h3 class="card__title">Progressão (em construção)</h3>
+          <h3 class="card__title">Sua progressão</h3>
           <p class="card__text">Você vai ganhar pontos por participação no fórum e subir de nível, liberando emojis e estilos no nick.</p>
 
           <div class="statRow">
@@ -134,11 +146,11 @@
           </div>
 
           <div class="xp">
-            <div class="xp__bar"><div class="xp__fill" data-xp-fill style="width:0%"></div></div>
-            <div class="xp__text">XP: <span data-xp-text>0/100</span></div>
+            <div class="xp__bar"><div class="xp__fill" id="profileXPFill" data-xp-fill style="width:0%"></div></div>
+            <div class="xp__text">XP: <span id="profileXPText" data-xp-text>0/100</span></div>
           </div>
 
-          <div class="badgeRow" id="profileBadges"></div>
+          <div class="badgeRow" id="profileRoles"></div>
 
           <p class="muted" style="margin-top:12px">Administração de cargos/escudos será feita pelo backend (vamos montar logo).</p>
         </article>

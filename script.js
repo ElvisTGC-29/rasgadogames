@@ -733,87 +733,90 @@
       });
     }
 
-    // ----- Área do usuário (perfil) — base para nick/foto/pontos/cargos -----
-    const profileFormEl = qs('#profileForm');
-    const profileUsernameEl = qs('#profileUsername');
-    const profileEmailEl = qs('#profileEmail');
-    const profileAvatarEl = qs('#profileAvatar');
-    const levelEl = qs('#profileLevel');
-    const pointsEl = qs('#profilePoints');
-    const badgeRow = qs('#profileBadges');
-    const xpFill = qs('[data-xp-fill]');
-    const xpText = qs('[data-xp-text]');
+    // ----- Área do usuário (perfil / futuro sistema de níveis) -----
+    const profileForm = qs('#profileForm');
+    if(profileForm){
+      const nickInput = qs('#profileNick');
+      const emailEl = qs('#profileEmail');
+      const avatarWrap = qs('#profileAvatar');
+      const rolesEl = qs('#profileRoles') || qs('#profileBadges');
+      const xpFill = qs('#profileXPFill') || qs('[data-xp-fill]');
+      const xpText = qs('#profileXPText') || qs('[data-xp-text]');
 
-    function getLocalPoints(userId){
-      try{
-        const raw = localStorage.getItem(`rg.points.${userId}`) || '0';
-        return Math.max(0, Number(raw) || 0);
-      }catch(_){ return 0; }
-    }
+      function renderProfile(sess){
+        if(!sess) return;
 
-    function renderProfile(){
-      const s = getSession();
-      if(!s) return;
-
-      if(profileUsernameEl) profileUsernameEl.textContent = s.username || 'Usuário';
-      if(profileEmailEl) profileEmailEl.textContent = s.email || '—';
-      if(profileAvatarEl){
-        const initial = (s.username || 'U').trim().slice(0,1).toUpperCase();
-        profileAvatarEl.textContent = initial || 'U';
-      }
-
-      const pts = getLocalPoints(s.id);
-      const level = 1 + Math.floor(pts / 100);
-      const into = pts % 100;
-      const pct = Math.min(100, Math.max(0, into));
-
-      if(levelEl) levelEl.textContent = String(level);
-      if(pointsEl) pointsEl.textContent = String(pts);
-      if(xpFill) xpFill.style.width = `${pct}%`;
-      if(xpText) xpText.textContent = `${into}/100`;
-
-      // Cargos/escudos (placeholder): por enquanto todo mundo começa como "Membro"
-      if(badgeRow){
-        badgeRow.innerHTML = `
-          <span class="badge badge--role" title="Cargo (em breve)">Membro</span>
-          <span class="badge badge--perk" title="Desbloqueios por nível (em breve)">Emojis: 🔒</span>
-        `;
-      }
-    }
-
-    renderProfile();
-
-    if(profileFormEl){
-      profileFormEl.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        if(profileMsg) clearAlert(profileMsg);
-
-        const s = getSession();
-        if(!s) return;
-
-        const fd = new FormData(profileFormEl);
-        const username = String(fd.get('username') || '').trim();
-
-        if(username.length < 3 || username.length > 20){
-          if(profileMsg) setAlert(profileMsg, { type:'warn', title:'Nome inválido', message:'Use 3–20 caracteres.', ttlMs: 0 });
-          return;
+        const displayName = rgGetDisplayName();
+        if(nickInput && !nickInput.value) nickInput.value = displayName;
+        if(emailEl) emailEl.textContent = sess.email || '';
+        if(avatarWrap){
+          const url = rgGetAvatarUrl();
+          avatarWrap.innerHTML = url
+            ? `<img src="${escapeAttr(url)}" alt="Avatar" />`
+            : rgMakeInitial(displayName);
         }
 
+        const role = rgGetRole();
+        const stats = rgGetStats();
+
+        if(rolesEl){
+          rolesEl.innerHTML = [
+            rgRoleBadge(role),
+            `<span class="badge">Nível ${escapeHtmlLite(stats.level)}</span>`,
+            `<span class="badge">${escapeHtmlLite(stats.points)} pts</span>`
+          ].join(' ');
+        }
+
+        if(xpFill){
+          const pct = Math.max(0, Math.min(100, (stats.xpInLevel / stats.xpToNext) * 100));
+          xpFill.style.width = pct + '%';
+        }
+        if(xpText){
+          xpText.textContent = `${stats.xpInLevel}/${stats.xpToNext}`;
+        }
+      }
+
+      renderProfile(getSession());
+
+      profileForm.addEventListener('submit', async (ev) => {
+        ev.preventDefault();
+        if(!sb){ setAlert(profileMsg, {type:'error', title:'Supabase não configurado', message:'Confira supabase-config.js'}); return; }
+
+        const rawNick = String(profileForm.profileNick?.value || '').trim();
+        const newNick = rawNick.length >= 3 ? rawNick : '';
+        const rawAvatarUrl = String(profileForm.avatar_url?.value || '').trim();
+        const avatarUrl = rawAvatarUrl && rawAvatarUrl.length >= 8 ? rawAvatarUrl : '';
+
+        const file = profileForm.avatar_file?.files && profileForm.avatar_file.files[0] ? profileForm.avatar_file.files[0] : null;
+
+        const dataUpdate = {};
+        if(newNick) dataUpdate.username = newNick;
+        if(avatarUrl) dataUpdate.avatar_url = avatarUrl;
+
         try{
-          const { error } = await sb.auth.updateUser({ data: { username } });
-          if(error) throw error;
+          if(Object.keys(dataUpdate).length){
+            const { error } = await sb.auth.updateUser({ data: dataUpdate });
+            if(error) throw error;
+          }
+
+          if(file){
+            const b64 = await new Promise((resolve, reject) => {
+              const reader = new FileReader();
+              reader.onload = () => resolve(String(reader.result || ''));
+              reader.onerror = () => reject(new Error('Falha ao ler arquivo'));
+              reader.readAsDataURL(file);
+            });
+            rgSetAvatarFileBase64(b64);
+          }
 
           await refreshSession();
-          renderAuthActions();
-          renderProfile();
-
-          if(profileMsg) setAlert(profileMsg, { type:'success', title:'Perfil atualizado', message:'Seu nick foi atualizado com sucesso.', ttlMs: 0 });
+          setAlert(profileMsg, {type:'success', title:'Perfil atualizado!', message:'Nick e foto salvos. (Foto por arquivo fica local por enquanto.)'});
+          renderProfile(getSession());
         }catch(err){
-          if(profileMsg) setAlert(profileMsg, { type:'warn', title:'Não foi possível atualizar', message: prettyAuthError(err), ttlMs: 0 });
+          setAlert(profileMsg, {type:'error', title:'Não foi possível salvar', message: prettyAuthError(err) });
         }
       });
     }
-
 
   }
 
@@ -1719,6 +1722,17 @@
 
     const prefix = (window.RG_ASSET_PREFIX || '');
 
+    function isAuthed(){
+      return Boolean(getSession());
+    }
+
+    function requireAuth(){
+      if(isAuthed()) return true;
+      if(gate){ gate.hidden = false; }
+      return false;
+    }
+
+
     // Fallback visual: se por algum motivo o redirect não aconteceu,
     // a gate aparece para visitantes sem sessão.
     if(gate){
@@ -1789,8 +1803,106 @@
       }
     };
 
-    // ---- Rendering ----
+    
+    // ---- Persistência (beta/local) ----
+    const STORAGE_KEY = `rg.forum.v2.${game}`;
+
+    function deepCopy(obj){
+      try{
+        return structuredClone(obj);
+      }catch(_){
+        return JSON.parse(JSON.stringify(obj));
+      }
+    }
+
+    function addSections(forum){
+      if(!forum?.categories) return forum;
+
+      forum.categories = forum.categories.map(c => {
+        const id = c.id;
+        let section = c.section;
+        if(!section){
+          if(game === 'stardew'){
+            if(['comecando','fazenda','minas','amizades'].includes(id)) section = 'Gameplay & Guias';
+            else if(['mods','tech'].includes(id)) section = 'Mods & Suporte';
+            else section = 'Comunidade';
+          }else{
+            if(['dev'].includes(id)) section = 'Dev & Oficiais';
+            else if(['teorias','arte','sugestoes'].includes(id)) section = 'Discussões';
+            else if(['tech'].includes(id)) section = 'Suporte';
+            else section = 'Comunidade';
+          }
+        }
+        return { ...c, section };
+      });
+
+      return forum;
+    }
+
+    function seedForum(){
+      const base = deepCopy(DATA[game] || DATA.stardew);
+      return addSections(base);
+    }
+
+    function loadForum(){
+      try{
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if(raw){
+          const parsed = JSON.parse(raw);
+          return addSections(parsed);
+        }
+      }catch(_){}
+      const seeded = seedForum();
+      try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(seeded)); }catch(_){}
+      return seeded;
+    }
+
+    function saveForum(){
+      try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(FORUM)); }catch(_){}
+    }
+
+    function nowLabel(){
+      const d = new Date();
+      const hh = String(d.getHours()).padStart(2,'0');
+      const mm = String(d.getMinutes()).padStart(2,'0');
+      return `hoje ${hh}:${mm}`;
+    }
+
+    let FORUM = loadForum();
+
+// ---- Rendering ----
     const state = { view:'categories', cat:null, topic:null, q:'', sort:'recent' };
+
+    function updateMiniProfile(){
+      const nameEl = document.getElementById('forumMiniName');
+      const avatarEl = document.getElementById('forumMiniAvatar');
+      const lvlEl = document.getElementById('forumMiniLevel');
+      const ptsEl = document.getElementById('forumMiniPoints');
+
+      const sess = getSession();
+      if(!sess){
+        if(nameEl) nameEl.textContent = 'Visitante';
+        if(avatarEl) avatarEl.textContent = 'U';
+        if(lvlEl) lvlEl.textContent = 'Nível —';
+        if(ptsEl) ptsEl.textContent = '— pts';
+        return;
+      }
+
+      if(nameEl) nameEl.textContent = sess.username || 'Usuário';
+      if(avatarEl){
+        if(sess.avatarUrl){
+          avatarEl.innerHTML = `<img src="${escapeAttr(sess.avatarUrl)}" alt="">`;
+        }else{
+          avatarEl.textContent = rgMakeInitial(sess.username);
+        }
+      }
+
+      const st = sess.stats || rgGetStats();
+      if(lvlEl) lvlEl.textContent = `Nível ${st.level}`;
+      if(ptsEl) ptsEl.textContent = `${st.points} pts`;
+    }
+
+
 
     const crumbs = document.getElementById('forumCrumbs');
     const search = document.getElementById('forumSearch');
@@ -1830,7 +1942,7 @@
     }
 
     function getForum(){
-      return DATA[game] || DATA.stardew;
+      return FORUM;
     }
 
     function formatLast(last){
@@ -1849,42 +1961,65 @@
 
     function sortTopics(list){
       const arr = [...list];
-      if(state.sort === 'replies') arr.sort((a,b) => (b.replies||0)-(a.replies||0));
-      else if(state.sort === 'views') arr.sort((a,b) => (b.views||0)-(a.views||0));
-      else arr.sort((a,b) => (b.views||0)-(a.views||0)); // "recent" em demo usa views como proxy
+      const pin = (x) => x && x.pinned ? 1 : 0;
+
+      if(state.sort === 'replies'){
+        arr.sort((a,b) => (pin(b)-pin(a)) || ((b.replies||0)-(a.replies||0)));
+      }else if(state.sort === 'views'){
+        arr.sort((a,b) => (pin(b)-pin(a)) || ((b.views||0)-(a.views||0)));
+      }else{
+        // "recent": mantém ordem natural (tópicos novos ficam no topo) e só prioriza fixados
+        arr.sort((a,b) => (pin(b)-pin(a)));
+      }
       return arr;
     }
+
+}
 
     function renderCategories(){
       const forum = getForum();
       setCrumbs([{label:'Categorias', href:'#/categorias'}]);
 
-      const rows = forum.categories.map(cat => {
-        const topicsCount = forum.topics.filter(t => t.cat === cat.id).length;
-        const postsCount = countPostsForCat(forum, cat.id);
-        const lastTopic = forum.topics.filter(t=>t.cat===cat.id)[0];
-        return `
-          <div class="forum-row forum-row--clickable" data-go="#/c/${cat.id}" role="button" tabindex="0" aria-label="Abrir ${escapeHtml(cat.title)}">
-            <div class="forum-row__title">
-              <div class="forum-icon"><img src="${prefix}${cat.icon}" alt=""></div>
-              <div style="min-width:0;">
-                <h4>${escapeHtml(cat.title)}</h4>
-                <p>${escapeHtml(cat.desc)}</p>
+      // Agrupar por seção (estilo “forum clássico”)
+      const map = {};
+      (forum.categories || []).forEach(cat => {
+        const sec = cat.section || 'Categorias';
+        (map[sec] = map[sec] || []).push(cat);
+      });
+
+      const sections = Object.keys(map);
+
+      const html = sections.map(sec => {
+        const rows = map[sec].map(cat => {
+          const topicsCount = forum.topics.filter(t => t.cat === cat.id).length;
+          const postsCount = countPostsForCat(forum, cat.id);
+          const lastTopic = forum.topics.filter(t=>t.cat===cat.id)[0];
+
+          return `
+            <div class="forum-row forum-row--clickable" data-go="#/c/${cat.id}" role="button" tabindex="0" aria-label="Abrir ${escapeHtml(cat.title)}">
+              <div class="forum-row__title">
+                <div class="forum-icon"><img src="${prefix}${cat.icon}" alt=""></div>
+                <div style="min-width:0;">
+                  <h4>${escapeHtml(cat.title)}</h4>
+                  <p>${escapeHtml(cat.desc)}</p>
+                </div>
               </div>
+              <div class="forum-meta"><strong>${topicsCount}</strong><br/>tópicos</div>
+              <div class="forum-meta"><strong>${postsCount}</strong><br/>posts</div>
+              <div class="forum-row__last">${formatLast(lastTopic?.last)}</div>
             </div>
-            <div class="forum-meta"><strong>${topicsCount}</strong><br/>tópicos</div>
-            <div class="forum-meta"><strong>${postsCount}</strong><br/>posts</div>
-            <div class="forum-row__last">${formatLast(lastTopic?.last)}</div>
+          `;
+        }).join('');
+
+        return `
+          <div class="forum-section">
+            <div class="forum-section__title">${escapeHtml(sec)}</div>
+            <div class="forum-table">${rows}</div>
           </div>
         `;
       }).join('');
 
-      app.innerHTML = `
-        <div class="forum-table">
-          ${rows}
-        </div>
-      `;
-
+      app.innerHTML = html || '<div class="card"><p class="card__text">Nada para mostrar ainda.</p></div>';
       wireGo();
     }
 
@@ -1911,7 +2046,7 @@
           <div class="forum-row__title">
             <div class="forum-icon"><img src="${prefix}${forum.categories.find(c=>c.id===t.cat)?.icon || forum.categories[0].icon}" alt=""></div>
             <div style="min-width:0;">
-              <h4>${escapeHtml(t.title)} <span class="badge">${escapeHtml(t.tag||'') || 'Tópico'}</span></h4>
+              <h4>${escapeHtml(t.title)} ${t.pinned ? '<span class="badge badge--pinned">Fixado</span>' : ''} ${t.locked ? '<span class="badge badge--locked">Fechado</span>' : ''} <span class="badge">${escapeHtml(t.tag||'') || 'Tópico'}</span></h4>
               <p>${escapeHtml(t.excerpt || '')}</p>
             </div>
           </div>
@@ -1948,43 +2083,64 @@
       if(!t) return renderCategories();
       const cat = forum.categories.find(c => c.id === t.cat);
 
+      // Conta view (beta)
+      t.views = Math.max(0, Number(t.views || 0)) + 1;
+      saveForum();
+
       setCrumbs([
         {label:'Categorias', href:'#/categorias'},
         {label: cat?.title || 'Categoria', href:`#/c/${t.cat}`},
         {label: t.title}
       ]);
 
-      const posts = (forum.posts[topicId] || []).map(p => `
-        <article class="post">
-          <div class="post__head">
-            <div class="post__author">
-              <div class="avatar">${escapeHtml((p.author||'?')[0] || '?')}</div>
-              <div>
-                <strong>${escapeHtml(p.author || 'Usuário')}</strong>
-                <div class="post__meta">${escapeHtml(p.role || 'Membro')} • ${escapeHtml(p.when || '')}</div>
+      const postsArr = (forum.posts && forum.posts[topicId]) ? forum.posts[topicId] : [];
+      const posts = postsArr.map(p => {
+        const a = (p.author || 'Usuário');
+        const initial = String(a).trim().slice(0,1).toUpperCase() || '?';
+        const avatar = p.avatarUrl ? `<img src="${escapeAttr(p.avatarUrl)}" alt="">` : escapeHtml(initial);
+        const role = p.role || 'Membro';
+        const lvl = Number(p.level || 1);
+        return `
+          <article class="post">
+            <div class="post__head">
+              <div class="post__author">
+                <div class="avatar" aria-hidden="true">${avatar}</div>
+                <div>
+                  <strong>${escapeHtml(a)}</strong>
+                  <div class="post__authorLine">
+                    ${rgRoleBadge(role)}
+                    <span class="levelPill">Nível ${escapeHtml(lvl)}</span>
+                    <span class="post__meta">${escapeHtml(p.when || '')}</span>
+                  </div>
+                </div>
+              </div>
+              <div style="display:flex; gap:8px; flex-wrap:wrap; justify-content:flex-end;">
+                ${t.pinned ? `<span class="badge badge--pinned">Fixado</span>` : ``}
+                ${t.locked ? `<span class="badge badge--locked">Fechado</span>` : ``}
+                <span class="badge">${escapeHtml(t.tag || 'Tópico')}</span>
               </div>
             </div>
-            <span class="badge">${escapeHtml(t.tag || 'Tópico')}</span>
-          </div>
-          <div class="post__body">${formatBody(p.body || '')}</div>
-        </article>
-      `).join('');
+            <div class="post__body">${formatBody(p.body || '')}</div>
+          </article>
+        `;
+      }).join('');
 
       app.innerHTML = `
         <div class="thread">
           <div class="card">
             <h3 class="card__title">${escapeHtml(t.title)}</h3>
             <p class="card__text">${escapeHtml(t.excerpt || '')}</p>
+            <p class="meta">Categoria: <strong>${escapeHtml(cat?.title || '')}</strong> • Respostas: <strong>${escapeHtml(t.replies || 0)}</strong> • Views: <strong>${escapeHtml(t.views || 0)}</strong></p>
           </div>
 
           ${posts || ''}
 
           <div class="editor">
             <strong>Responder</strong>
-            <textarea id="replyText" placeholder="Escreva sua resposta... (suporta texto simples)"></textarea>
+            <textarea id="replyText" placeholder="Escreva sua resposta... (suporta **negrito** e *itálico*)"></textarea>
             <div class="editor__bar">
               <button class="btn btn--ghost" type="button" id="btnEmoji">😀 Emojis</button>
-              <button class="btn btn--primary" type="button" id="btnReply">Enviar</button>
+              <button class="btn btn--primary" type="button" id="btnReply" ${t.locked ? 'disabled' : ''}>Enviar</button>
             </div>
             <div class="emoji-panel" id="emojiPanel">
               <div class="emoji-grid" id="emojiGrid"></div>
@@ -1996,8 +2152,9 @@
 
       const replyHint = document.getElementById('replyHint');
       if(replyHint){
-        replyHint.textContent = isAuthed()
-          ? 'Envio é demo (sem back-end). O layout está pronto; o sistema de conta vem depois.'
+        if(t.locked) replyHint.textContent = 'Este tópico está fechado.';
+        else replyHint.textContent = isAuthed()
+          ? 'Responder dá +5 pontos (beta).'
           : 'Área de membros: entre para responder.';
       }
 
@@ -2029,11 +2186,39 @@
       const btnReply = document.getElementById('btnReply');
       if(btnReply){
         btnReply.addEventListener('click', () => {
-          if(!isAuthed()){
-            if(gate){ gate.hidden = false; }
+          if(!requireAuth()) return;
+          if(t.locked) return;
+
+          const text = String(textarea?.value || '').trim();
+          if(text.length < 2){
+            if(replyHint) replyHint.textContent = 'Escreva uma resposta antes de enviar.';
             return;
           }
-          alert('Demo: resposta enviada (não salva).');
+
+          const sess = getSession();
+          const post = {
+            author: sess.username,
+            role: sess.role,
+            level: sess.stats?.level || 1,
+            avatarUrl: sess.avatarUrl || '',
+            when: nowLabel(),
+            body: text
+          };
+
+          forum.posts = forum.posts || {};
+          forum.posts[topicId] = (forum.posts[topicId] || []).concat([post]);
+
+          t.replies = Math.max(0, Number(t.replies || 0)) + 1;
+          t.last = { user: sess.username, when: 'agora' };
+
+          // Move topic to top (recente)
+          forum.topics = [t].concat(forum.topics.filter(x => x.id !== t.id));
+
+          saveForum();
+          rgAddPoints(5);
+          updateMiniProfile();
+
+          renderThread(topicId);
         });
       }
     }
@@ -2046,8 +2231,8 @@
 
       app.innerHTML = `
         <div class="card">
-          <h3 class="card__title">Criar tópico (demo)</h3>
-          <p class="card__text">O layout está pronto. Quando o cadastro/login estiver ativo, isso salva de verdade.</p>
+          <h3 class="card__title">Criar tópico</h3>
+          <p class="card__text">Beta: salva localmente no seu navegador. O backend vem depois.</p>
 
           <div class="stack">
             <label class="field">
@@ -2057,7 +2242,7 @@
 
             <label class="field">
               <span class="field__label">Título</span>
-              <input id="newTitle" class="field__input" type="text" placeholder="Ex: Mina 120 — dicas de comida e anéis" />
+              <input id="newTitle" class="field__input" type="text" maxlength="120" placeholder="Ex: Mina 120 — dicas de comida e anéis" />
             </label>
 
             <label class="field">
@@ -2071,25 +2256,73 @@
             <a class="btn btn--ghost" href="#/categorias">Cancelar</a>
           </div>
 
-          <p class="meta" id="newHint" style="margin-top:10px;"></p>
+          <div id="newHint" class="alertSlot" aria-live="polite" style="margin-top:12px;"></div>
         </div>
       `;
 
       const hint = document.getElementById('newHint');
       if(hint){
-        hint.textContent = isAuthed()
-          ? 'Demo: publicar só mostra um alerta. Backend vem depois.'
-          : 'Área de membros: entre para publicar.';
+        hint.innerHTML = isAuthed()
+          ? ''
+          : `<div class="alert alert--warn"><strong>Área de membros:</strong> entre para publicar.</div>`;
       }
 
       const btnPublish = document.getElementById('btnPublish');
+      const catEl = document.getElementById('newCat');
+      const titleEl = document.getElementById('newTitle');
+      const bodyEl = document.getElementById('newBody');
+
       if(btnPublish){
         btnPublish.addEventListener('click', () => {
-          if(!isAuthed()){
-            if(gate){ gate.hidden = false; }
+          if(!requireAuth()) return;
+
+          const cat = String(catEl?.value || '').trim();
+          const title = String(titleEl?.value || '').trim();
+          const body = String(bodyEl?.value || '').trim();
+
+          if(title.length < 6){
+            if(hint) hint.innerHTML = `<div class="alert alert--warn"><strong>Título curto.</strong> Use pelo menos 6 caracteres.</div>`;
             return;
           }
-          alert('Demo: tópico publicado (não salvo).');
+          if(body.length < 10){
+            if(hint) hint.innerHTML = `<div class="alert alert--warn"><strong>Texto curto.</strong> Explique um pouco mais.</div>`;
+            return;
+          }
+
+          const sess = getSession();
+          const id = 'u' + Date.now().toString(36) + Math.abs(hashStr(title)).toString(36);
+
+          const excerpt = body.replace(/\s+/g,' ').slice(0, 120) + (body.length > 120 ? '…' : '');
+          const topic = {
+            id,
+            cat,
+            title,
+            excerpt,
+            tag: 'Discussão',
+            pinned: false,
+            locked: false,
+            replies: 0,
+            views: 0,
+            last: { user: sess.username, when: 'agora' }
+          };
+
+          forum.topics = [topic].concat((forum.topics || []));
+          forum.posts = forum.posts || {};
+          forum.posts[id] = [{
+            author: sess.username,
+            role: sess.role,
+            level: sess.stats?.level || 1,
+            avatarUrl: sess.avatarUrl || '',
+            when: nowLabel(),
+            body
+          }];
+
+          saveForum();
+          rgAddPoints(10);
+          updateMiniProfile();
+
+          location.hash = `#/t/${id}`;
+          renderFromHash();
         });
       }
     }
@@ -2126,6 +2359,7 @@
     }
 
     function renderFromHash(){
+      updateMiniProfile();
       const hash = (location.hash || '#/categorias').replace(/^#/, '');
       // routes
       if(hash.startsWith('/c/')){
